@@ -1,0 +1,52 @@
+const express = require("express");
+const bodyParser = require("body-parser");
+
+// Importa las rutas
+const usuariosRoutes = require("./src/routes/usuariosRoutes");
+const vehiculosRoutes = require("./src/routes/vehiculosRoutes");
+const placasRoutes = require("./src/routes/placasRoutes");
+const licenciaRoutes = require("./src/routes/licenciaRoutes");
+const extendidaRoutes = require("./src/routes/extendidaRoutes");
+const infraccionRoutes = require("./src/routes/infraccionRoutes");
+const articuloRoutes = require("./src/routes/articuloRoutes");
+const firmaRoutes = require("./src/routes/firmaRoutes");
+const estadoRoutes = require("./src/routes/estadoRoutes");
+const sessionRoutes = require("./src/routes/sessionRoutes");
+const boletaVehiculoRoutes = require("./src/routes/boletaVehiculoRoutes");
+const multaRoutes = require("./src/routes/multaRoutes");
+const multaDetalleRoutes = require("./src/routes/multaDetalleRoutes");
+const boletasRoutes = require("./src/routes/boletas");
+const boletasFinalRoutes = require("./src/routes/boletasFinal");
+
+const app = express();
+const port = 3000;
+
+// Middleware
+app.use(bodyParser.json());
+
+// Rutas
+app.use("/api/usuarios", usuariosRoutes);
+app.use("/api/vehiculos", vehiculosRoutes);
+app.use("/api/placas", placasRoutes);
+app.use("/api/licencias", licenciaRoutes);
+app.use("/api/extendidas", extendidaRoutes); 
+app.use("/api/infracciones", infraccionRoutes);
+app.use("/api/articulos", articuloRoutes);
+app.use("/api/firmas", firmaRoutes);
+app.use("/api/estados", estadoRoutes);
+app.use("/api/session", sessionRoutes);
+app.use("/api/boleta-vehiculo", boletaVehiculoRoutes);
+app.use("/api/multa", multaRoutes);
+app.use("/api/multa-detalle", multaDetalleRoutes);
+app.use("/api/boletas", boletasRoutes);
+app.use("/api/boletas-finales", boletasFinalRoutes);
+
+// Ruta principal (endpoint raíz "/")
+app.get("/", (req, res) => {
+    res.send("Servidor corriendo correctamente 🚀");
+});
+
+// Iniciar el servidor
+app.listen(port, () => {
+  console.log(`Servidor corriendo en http://127.0.0.1:${port}`);
+});
