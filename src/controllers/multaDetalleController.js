@@ -1,4 +1,4 @@
-const db = require("../db");
+const db = require("../db/db");
 
 // Crear detalle de multa
 const createMultaDetalle = (req, res) => {
@@ -66,21 +66,21 @@ const updateMultaDetalle = (req, res) => {
 
 
 // Obtener la suma de subtotales para una multa específica
-const getMultaSubtotales = (req, res) => {
-  const { id } = req.params;
-  const query = "EXEC sp_GetMultaTotalSubtotales @id_multa = ?";
+// const getMultaSubtotales = (req, res) => {
+//   const { id } = req.params;
+//   const query = "EXEC sp_GetMultaTotalSubtotales @id_multa = ?";
 
-  db.query(query, [id], (err, rows) => {
-    if (err) {
-      res.status(500).send({ error: "Error al calcular los subtotales", details: err });
-    } else if (rows.length === 0 || rows[0].total_subtotales === null) {
-      res.status(404).send({ message: "No se encontraron subtotales para esta multa" });
-    } else {
-      res.status(200).send({ total_subtotales: rows[0].total_subtotales });
-    }
-  });
-};
+//   db.query(query, [id], (err, rows) => {
+//     if (err) {
+//       res.status(500).send({ error: "Error al calcular los subtotales", details: err });
+//     } else if (rows.length === 0 || rows[0].total_subtotales === null) {
+//       res.status(404).send({ message: "No se encontraron subtotales para esta multa" });
+//     } else {
+//       res.status(200).send({ total_subtotales: rows[0].total_subtotales });
+//     }
+//   });
+// };
 
 
 
-module.exports = { createMultaDetalle, getAllMultaDetalles, getMultaDetalleById, updateMultaDetalle, getMultaSubtotales };
+module.exports = { createMultaDetalle, getAllMultaDetalles, getMultaDetalleById, updateMultaDetalle };

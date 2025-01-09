@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const path = require("path");
 
 // Importa las rutas
 const usuariosRoutes = require("./src/routes/usuariosRoutes");
@@ -23,6 +24,23 @@ const port = 3000;
 
 // Middleware
 app.use(bodyParser.json());
+
+ // Configurar la carpeta de archivos estáticos
+ app.use(express.static(path.join(__dirname, "public")));
+
+ // Rutas específicas para las páginas HTML
+ app.get("/index", (req, res) => {
+   res.sendFile(path.join(__dirname, "public", "index.html"));
+ });
+
+ app.get("/boleta", (req, res) => {
+   res.sendFile(path.join(__dirname, "public", "boleta.html"));
+ });
+
+ app.get("/registros", (req, res) => {
+   res.sendFile(path.join(__dirname, "public", "registros.html"));
+});
+
 
 // Rutas
 app.use("/api/usuarios", usuariosRoutes);

@@ -7,7 +7,7 @@ router.post("/", createMulta);
 router.get("/", getAllMultas);
 router.get("/:id", getMultaById);
 router.put("/:id", updateMulta);
-router.put("/update-total/:id", updateMultaTotal);
+// router.put("/update-total/:id", updateMultaTotal);
 
 
 module.exports = router;
