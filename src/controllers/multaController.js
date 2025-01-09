@@ -1,4 +1,4 @@
-const db = require("../db");
+const db = require("../db/db");
 
 // Crear multa
 const createMulta = (req, res) => {
@@ -56,18 +56,18 @@ const updateMulta = (req, res) => {
   });
 };
 
-// Actualizar el total de una multa basado en los subtotales de multa_detalle
-const updateMultaTotal = (req, res) => {
-  const { id } = req.params;
-  const query = "EXEC sp_UpdateMultaTotal @id_multa = ?";
+// // Actualizar el total de una multa basado en los subtotales de multa_detalle
+// const updateMultaTotal = (req, res) => {
+//   const { id } = req.params;
+//   const query = "EXEC sp_UpdateMultaTotal @id_multa = ?";
 
-  db.query(query, [id], (err) => {
-    if (err) {
-      res.status(500).send({ error: "Error al actualizar el total de la multa", details: err });
-    } else {
-      res.status(200).send({ message: "Total de la multa actualizado correctamente" });
-    }
-  });
-};
+//   db.query(query, [id], (err) => {
+//     if (err) {
+//       res.status(500).send({ error: "Error al actualizar el total de la multa", details: err });
+//     } else {
+//       res.status(200).send({ message: "Total de la multa actualizado correctamente" });
+//     }
+//   });
+// };
 
-module.exports = { createMulta, getAllMultas, getMultaById, updateMulta, updateMultaTotal };
+module.exports = { createMulta, getAllMultas, getMultaById, updateMulta };

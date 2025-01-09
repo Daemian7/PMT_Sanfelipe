@@ -1,4 +1,4 @@
-const db = require("../db/connection");
+const db = require("../db/db");
 
 const getAllBoletasFinales = (req, res) => {
     const query = "EXEC sp_ObtenerBoletasFinales";

@@ -1,5 +1,4 @@
-const db = require("../db/connection");
-
+const db = require("../db/db");
 const getAllBoletas = (req, res) => {
     const query = "EXEC sp_GetInfoBoletas";
     db.query(query, [], (err, rows) => {

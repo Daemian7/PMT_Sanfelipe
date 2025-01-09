@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Boletas</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/boleta2.css">
+    <link rel="icon" href="img/logopmt.ico" type="image/x-icon">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo"> 
+          <img src="img/logopmt.png" alt="" width="80" align = "left">
+          <h1>PMT</h1>
+          <p>San Felipe Retalhuleu</p>
+        </div>
+        <nav class="menu">
+          <ul>
+            <li><a href="/index">Inicio</a></li>
+            <li><a href="/boleta">Ingreso de Boleta</a></li>
+            <li><a href="/registros">Ver Boletas</a></li>
+            <li><a href="#">Estadísticas</a></li>
+            <li><a href="#">Configuración</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+    <main class="main-content">
+      <header class="header">
+        <h1>Registro de Boletas</h1>
+      </header>
+      <section class="content">
+        <h2>Todas las Boletas Registradas</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>No. Boleta</th>
+              <th>Tipo Placa</th>
+              <th>Placa</th>
+              <th>Tipo Vehículo</th>
+              <th>NIT Propietario</th>
+              <th>Tarjeta Circulación</th>
+              <th>Marca</th>
+              <th>Color</th>
+              <th>Tipo Licencia</th>
+              <th>Número Licencia</th>
+              <th>Documento Licencia</th>
+              <th>DPI</th>
+              <th>Licencia Extendida</th>
+              <th>Nombre Propietario</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>001</td>
+              <td>Particular</td>
+              <td>ABC123</td>
+              <td>Sedan</td>
+              <td>1234567-8</td>
+              <td>TCO01</td>
+              <td>Toyota</td>
+              <td>Rojo</td>
+              <td>B</td>
+              <td>LIC001</td>
+              <td>DOC001</td>
+              <td>1234567890101</td>
+              <td>2023-01-01</td>
+              <td>Juan Pérez</td>
+              <td>Pendiente</td>
+              <td><button class="edit-btn">✎</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  
+</body>
+</html>

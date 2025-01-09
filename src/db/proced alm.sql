@@ -850,7 +850,7 @@ EXEC sp_UpdateEstado
 
 
 
-
+	use pmt_sanfe
 	
 
 SELECT 
