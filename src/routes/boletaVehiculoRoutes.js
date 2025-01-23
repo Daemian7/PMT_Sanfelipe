@@ -3,9 +3,9 @@ const router = express.Router();
 const boletaVehiculoController = require("../controllers/boletaVehiculoController");
 
 // Rutas CRUD
-router.post("/boletas", boletaVehiculoController.crearBoleta); // Crear
-router.get("/boletas/:id?", boletaVehiculoController.obtenerBoletas); // Obtener (por ID o todas)
-router.put("/boletas/:id", boletaVehiculoController.actualizarBoleta); // Actualizar
+router.post("/", boletaVehiculoController.createBoletaVehiculo);
+router.get("/", boletaVehiculoController.getBoletasVehiculo);
+router.put("/:id", boletaVehiculoController.updateBoletaVehiculo);
 
 
 module.exports = router;
