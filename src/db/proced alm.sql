@@ -94,7 +94,7 @@ BEGIN
     WHERE id_vehiculo = @id_vehiculo;
 END;
 
-CREATE PROCEDURE sp_UpdateVehiculo
+create PROCEDURE sp_UpdateVehiculo
     @id_vehiculo INT,
     @nombre NVARCHAR(200)
 AS
@@ -133,54 +133,56 @@ EXEC sp_UpdateVehiculo @id_vehiculo = 1, @nombre = 'Honda Civic';
 EXEC sp_DeleteVehiculo @id_vehiculo = 1;
 
 
-CREATE PROCEDURE sp_InsertPlaca
-    @placa NVARCHAR(250)
+
+CREATE PROCEDURE sp_InsertarPlaca
+    @placa NVARCHAR(250),
+    @placa_inicial VARCHAR(3)
 AS
 BEGIN
-    INSERT INTO placa (placa)
-    VALUES (@placa);
+    INSERT INTO placa (placa, placa_inicial)
+    VALUES (@placa, @placa_inicial);
 
-    SELECT SCOPE_IDENTITY() AS NewPlacaId; -- Devuelve el ID de la nueva placa
+    SELECT SCOPE_IDENTITY() AS id_placa; -- Devuelve el ID generado
 END;
 
-CREATE PROCEDURE sp_GetPlacas
+CREATE PROCEDURE sp_ObtenerPlacas
+    @id_placa INT = NULL -- Parámetro opcional
 AS
 BEGIN
-    SELECT id_placa, placa
-    FROM placa;
+    IF @id_placa IS NULL
+    BEGIN
+        SELECT * FROM placa; -- Devuelve todos los registros
+    END
+    ELSE
+    BEGIN
+        SELECT * FROM placa WHERE id_placa = @id_placa; -- Devuelve un registro por ID
+    END
 END;
 
-CREATE PROCEDURE sp_GetPlacaById
-    @id_placa INT
-AS
-BEGIN
-    SELECT id_placa, placa
-    FROM placa
-    WHERE id_placa = @id_placa;
-END;
-
-CREATE PROCEDURE sp_UpdatePlaca
+create PROCEDURE sp_ActualizarPlaca
     @id_placa INT,
-    @placa NVARCHAR(250)
+    @placa NVARCHAR(250),
+    @placa_inicial VARCHAR(3)
 AS
 BEGIN
     UPDATE placa
-    SET placa = @placa
+    SET placa = @placa,
+        placa_inicial = @placa_inicial
     WHERE id_placa = @id_placa;
 
-    IF @@ROWCOUNT = 0
-    BEGIN
-        RAISERROR ('No se encontró la placa con el ID especificado.', 16, 1);
-    END;
+    -- Devolver el número de filas actualizadas
+    SELECT @@ROWCOUNT AS filas_actualizadas;
 END;
 
+
+
+
+
 --placas
-EXEC sp_InsertPlaca @placa = 'Transporte Urbano';
-EXEC sp_InsertPlaca @placa = 'Trailer Comercial';
-EXEC sp_InsertPlaca @placa = 'Distribuidor de vehiculos';
-EXEC sp_GetPlacas;
-EXEC sp_GetPlacaById @id_placa = 1;
-EXEC sp_UpdatePlaca @id_placa = 1, @placa = 'XYZ9876';
+EXEC sp_InsertarPlaca @placa = 'Sin Placa', @placa_inicial = 'SP';
+EXEC sp_ObtenerPlacas;
+EXEC sp_ObtenerPlacas @id_placa = 1;
+EXEC sp_ActualizarPlaca @id_placa = 11, @placa = 'Urbano', @placa_inicial = 'U';
 
 
 
@@ -334,56 +336,65 @@ EXEC sp_GetInfraccionById @id_ifrac = 1;
 EXEC sp_UpdateInfraccion @id_ifrac = 1, @tipo_infrac = 'Estacionamiento indebido';
 
 
-CREATE PROCEDURE sp_InsertArticulo
+
+
+CREATE PROCEDURE sp_InsertarArticulo
     @numero_artic NVARCHAR(200),
-    @detalle NVARCHAR(1200)
+    @detalle NVARCHAR(1200),
+    @precio FLOAT
 AS
 BEGIN
-    INSERT INTO articulos (numero_artic, detalle)
-    VALUES (@numero_artic, @detalle);
+    INSERT INTO articulos (numero_artic, detalle, precio)
+    VALUES (@numero_artic, @detalle, @precio);
 
-    SELECT SCOPE_IDENTITY() AS NewArticuloId; -- Devuelve el ID del nuevo artículo
+    SELECT SCOPE_IDENTITY() AS id_artic; -- Devuelve el ID generado
 END;
 
-CREATE PROCEDURE sp_GetArticulos
+CREATE PROCEDURE sp_ObtenerArticulos
+    @id_artic INT = NULL -- Parámetro opcional
 AS
 BEGIN
-    SELECT id_artic, numero_artic, detalle
-    FROM articulos;
+    IF @id_artic IS NULL
+    BEGIN
+        SELECT * FROM articulos; -- Devuelve todos los registros
+    END
+    ELSE
+    BEGIN
+        SELECT * FROM articulos WHERE id_artic = @id_artic; -- Devuelve un registro por ID
+    END
 END;
 
-CREATE PROCEDURE sp_GetArticuloById
-    @id_artic INT
-AS
-BEGIN
-    SELECT id_artic, numero_artic, detalle
-    FROM articulos
-    WHERE id_artic = @id_artic;
-END;
-
-CREATE PROCEDURE sp_UpdateArticulo
+CREATE PROCEDURE sp_ActualizarArticulo
     @id_artic INT,
     @numero_artic NVARCHAR(200),
-    @detalle NVARCHAR(1200)
+    @detalle NVARCHAR(1200),
+    @precio FLOAT
 AS
 BEGIN
     UPDATE articulos
     SET numero_artic = @numero_artic,
-        detalle = @detalle
+        detalle = @detalle,
+        precio = @precio
     WHERE id_artic = @id_artic;
 
-    IF @@ROWCOUNT = 0
-    BEGIN
-        RAISERROR ('No se encontró el artículo con el ID especificado.', 16, 1);
-    END;
+    SELECT @@ROWCOUNT AS filas_actualizadas; -- Devuelve la cantidad de filas actualizadas
 END;
 
 
 --articulos
-EXEC sp_InsertArticulo @numero_artic = 'ART001', @detalle = 'Artículo de prueba, descripción detallada';
-EXEC sp_GetArticulos;
-EXEC sp_GetArticuloById @id_artic = 1;
-EXEC sp_UpdateArticulo @id_artic = 1, @numero_artic = 'ART002', @detalle = 'Nuevo detalle del artículo';
+EXEC sp_InsertarArticulo 
+    @numero_artic = '182.20', 
+    @detalle = 'Por no ceder el paso a los ciclistas cuando tengan la prioridad', 
+    @precio = 300;
+
+EXEC sp_ObtenerArticulos;
+EXEC sp_ObtenerArticulos @id_artic = 1;
+EXEC sp_ActualizarArticulo 
+    @id_artic = 53, 
+    @numero_artic = '182.5', 
+    @detalle = 'Por producir sonidos o ruidos estridentes exagerados o innece- sarios por medio de los propios vehículos, bocinas, altavoces u otros aditamentos, en áreas residenciales, hospitales y sanatorios o en horas de la noche', 
+    @precio = 300;
+
 
 
 
@@ -437,7 +448,8 @@ EXEC sp_ObtenerFirmaPorId @id_firma = 1;
 EXEC sp_ActualizarFirma @id_firma = 1, @tipo_firma = 'Firma Electrónica Actualizada';
 
 
-CREATE PROCEDURE sp_InsertBoletaVehiculo
+
+CREATE PROCEDURE sp_InsertarBoletaVehiculo
     @tipo_placa INT,
     @placa_cod NVARCHAR(8),
     @id_vehiculo INT,
@@ -450,45 +462,30 @@ CREATE PROCEDURE sp_InsertBoletaVehiculo
     @no_doc_licencia NVARCHAR(100),
     @dpi NVARCHAR(13),
     @extendida INT,
-    @nombre NVARCHAR(255)
+    @nombre NVARCHAR(255),
+    @no_boleta INT
 AS
 BEGIN
-    INSERT INTO boleta_vehiculo (
-        tipo_placa, placa_cod, id_vehiculo, nit_prop, tarjeta_circ, marca, color,
-        tipo_licencia, no_licencia, no_doc_licencia, dpi, extendida, nombre
-    )
-    VALUES (
-        @tipo_placa, @placa_cod, @id_vehiculo, @nit_prop, @tarjeta_circ, @marca, @color,
-        @tipo_licencia, @no_licencia, @no_doc_licencia, @dpi, @extendida, @nombre
-    );
+    INSERT INTO boleta_vehiculo (tipo_placa, placa_cod, id_vehiculo, nit_prop, tarjeta_circ, marca, color, tipo_licencia, no_licencia, no_doc_licencia, dpi, extendida, nombre, no_boleta)
+    VALUES (@tipo_placa, @placa_cod, @id_vehiculo, @nit_prop, @tarjeta_circ, @marca, @color, @tipo_licencia, @no_licencia, @no_doc_licencia, @dpi, @extendida, @nombre, @no_boleta);
+
+    SELECT SCOPE_IDENTITY() AS id_boleta; -- Devuelve el ID del registro creado
 END;
 
-CREATE PROCEDURE sp_GetBoletaVehiculo
+CREATE PROCEDURE sp_ObtenerBoletasVehiculo
+    @id_boleta INT = NULL -- Parámetro opcional
 AS
 BEGIN
-    SELECT 
-        id_boleta, tipo_placa, placa_cod, id_vehiculo, nit_prop, tarjeta_circ, 
-        marca, color, tipo_licencia, no_licencia, no_doc_licencia, dpi, extendida, nombre
-    FROM 
-        boleta_vehiculo;
+    IF @id_boleta IS NULL
+    BEGIN
+        SELECT * FROM boleta_vehiculo; -- Devuelve todos los registros
+    END
+    ELSE
+    BEGIN
+        SELECT * FROM boleta_vehiculo WHERE id_boleta = @id_boleta; -- Devuelve un registro por ID
+    END
 END;
-GO
-
-CREATE PROCEDURE sp_GetBoletaVehiculoById
-    @id_boleta INT
-AS
-BEGIN
-    SELECT 
-        id_boleta, tipo_placa, placa_cod, id_vehiculo, nit_prop, tarjeta_circ, 
-        marca, color, tipo_licencia, no_licencia, no_doc_licencia, dpi, extendida, nombre
-    FROM 
-        boleta_vehiculo
-    WHERE 
-        id_boleta = @id_boleta;
-END;
-GO
-
-CREATE PROCEDURE sp_UpdateBoletaVehiculo
+CREATE PROCEDURE sp_ActualizarBoletaVehiculo
     @id_boleta INT,
     @tipo_placa INT,
     @placa_cod NVARCHAR(8),
@@ -502,12 +499,12 @@ CREATE PROCEDURE sp_UpdateBoletaVehiculo
     @no_doc_licencia NVARCHAR(100),
     @dpi NVARCHAR(13),
     @extendida INT,
-    @nombre NVARCHAR(255)
+    @nombre NVARCHAR(255),
+    @no_boleta INT
 AS
 BEGIN
     UPDATE boleta_vehiculo
-    SET 
-        tipo_placa = @tipo_placa,
+    SET tipo_placa = @tipo_placa,
         placa_cod = @placa_cod,
         id_vehiculo = @id_vehiculo,
         nit_prop = @nit_prop,
@@ -519,45 +516,50 @@ BEGIN
         no_doc_licencia = @no_doc_licencia,
         dpi = @dpi,
         extendida = @extendida,
-        nombre = @nombre
-    WHERE 
-        id_boleta = @id_boleta;
+        nombre = @nombre,
+        no_boleta = @no_boleta
+    WHERE id_boleta = @id_boleta;
+
+    SELECT @@ROWCOUNT AS filas_actualizadas; -- Devuelve la cantidad de filas actualizadas
 END;
-GO
+
 
 
 --boleta vehiculo 
-EXEC sp_InsertBoletaVehiculo 
-    @tipo_placa = 1, 
-    @placa_cod = 'P176GAL', 
-    @id_vehiculo = 2, 
-    @nit_prop = 9794960, 
-    @tarjeta_circ = '5193313', 
-    @marca = 'Toyota', 
-    @color = 'Rojo', 
-    @tipo_licencia = 1, 
-    @no_licencia = '1734539410901', 
-    @no_doc_licencia = '8-0000345', 
-    @dpi = '3330204351105', 
-    @extendida = 1, 
-    @nombre = 'Maria Prueba';
-EXEC sp_GetBoletaVehiculo;
-EXEC sp_GetBoletaVehiculoById @id_boleta = 1;
-EXEC sp_UpdateBoletaVehiculo 
-    @id_boleta = 1, 
-    @tipo_placa = 2, 
-    @placa_cod = 'DEF456', 
-    @id_vehiculo = 3, 
-    @nit_prop = 987654321, 
-    @tarjeta_circ = '654321', 
-    @marca = 'Honda', 
-    @color = 'Azul', 
-    @tipo_licencia = 2, 
-    @no_licencia = '123456789', 
-    @no_doc_licencia = '123456', 
-    @dpi = '9876543210987', 
-    @extendida = 4, 
-    @nombre = 'Maria Lopez';
+EXEC sp_InsertarBoletaVehiculo 
+    @tipo_placa = 1,
+    @placa_cod = 'ABC123',
+    @id_vehiculo = 2,
+    @nit_prop = 12345678,
+    @tarjeta_circ = 'TAR123',
+    @marca = 'Toyota',
+    @color = 'Rojo',
+    @tipo_licencia = 3,
+    @no_licencia = 'LIC123',
+    @no_doc_licencia = 'DOC456',
+    @dpi = '1234567890123',
+    @extendida = 4,
+    @nombre = 'Juan Pérez',
+    @no_boleta = 789;
+EXEC sp_ObtenerBoletasVehiculo;
+EXEC sp_ObtenerBoletasVehiculo @id_boleta = 1;
+EXEC sp_ActualizarBoletaVehiculo 
+    @id_boleta = 1,
+    @tipo_placa = 2,
+    @placa_cod = 'DEF456',
+    @id_vehiculo = 3,
+    @nit_prop = 87654321,
+    @tarjeta_circ = 'TAR456',
+    @marca = 'Honda',
+    @color = 'Azul',
+    @tipo_licencia = 4,
+    @no_licencia = 'LIC456',
+    @no_doc_licencia = 'DOC789',
+    @dpi = '9876543210987',
+    @extendida = 5,
+    @nombre = 'Carlos López',
+    @no_boleta = 123;
+
 
 
 
@@ -902,7 +904,7 @@ INNER JOIN
 VALUES ('admin_user', 'userjemplo');
 
 
-
+use pmt_sanfe
 CREATE PROCEDURE CreateSession(
     @p_usuario VARCHAR(100),
     @p_passw VARCHAR(50)
@@ -912,6 +914,17 @@ BEGIN
     INSERT INTO session_init (usuario, passw)
     VALUES (@p_usuario, @p_passw);
 END;
+
+CREATE PROCEDURE CreateSession(
+    @p_usuario VARCHAR(100),
+    @p_passw VARCHAR(255)
+)
+AS
+BEGIN
+    INSERT INTO session_init (usuario, passw)
+    VALUES (@p_usuario, @p_passw);
+END;
+
 
 
 CREATE PROCEDURE GetSession(
@@ -971,3 +984,7 @@ BEGIN
     WHERE id_multa = @id_multa;
 END;
 GO
+
+select * from session_init
+
+SELECT usuario, passw FROM session_init;

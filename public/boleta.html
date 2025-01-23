@@ -22,9 +22,9 @@
         </div>
         <nav class="menu">
           <ul>
-            <li><a href="index.html">Inicio</a></li>
-            <li><a href="boleta.html">Ingreso de Boleta</a></li>
-            <li><a href="registros.html">Ver Boletas</a></li>
+            <li><a href="/index">Inicio</a></li>
+            <li><a href="/boleta">Ingreso de Boleta</a></li>
+            <li><a href="/registros">Ver Boletas</a></li>            
             <li><a href="#">Estadísticas</a></li>
             <li><a href="#">Configuración</a></li>
           </ul>
@@ -38,7 +38,7 @@
           <!-- Boleta Info -->
           <div class="form-section">
             <label for="boleta">No. Boleta</label>
-            <input type="text" id="boleta" placeholder="00" disabled>
+            <input type="text" id="no_boleta" placeholder="0000">
   
             <label for="tipo-placa">Tipo de Placa</label>
             <select id="tipo-placa">
@@ -171,7 +171,10 @@
         </form>
       </main>
     </div>
-  
-    <script src="js/script.js"></script>
+  <!-- scripts de todos los select js consumiendo api -->
+<script src="js/placas.js"></script>
+<script src="js/vehiculos.js"></script>
+
+<script src="js/script.js"></script>
   </body>
 </html>

@@ -23,11 +23,16 @@ nombre nvarchar(200)
 
 create table placa (
 id_placa int identity (1,1) primary key,
-placa nvarchar(250)
+placa nvarchar(250),
+placa_inicial varchar(3)
 );
 
 alter table placa 
 ALTER COLUMN placa nvarchar(250)not null;
+
+ALTER TABLE placa
+ADD placa_inicial varchar(3);
+
 
 
 create table licencia(
@@ -51,8 +56,13 @@ tipo_infrac nvarchar(150)
 create table articulos(
 id_artic int identity (1,1) primary key,
 numero_artic nvarchar(200),
-detalle nvarchar(1200)
+detalle nvarchar(1200),
+precio float
 );
+
+ALTER TABLE articulos
+ADD precio float;
+
 
 
 create table firma (
@@ -79,11 +89,17 @@ CREATE TABLE boleta_vehiculo  (
 	dpi nvarchar(13),
 	extendida int not null,
     nombre NVARCHAR(255) NOT NULL,
+	no_boleta int,
 FOREIGN KEY (tipo_placa) REFERENCES placa(id_placa) ON DELETE CASCADE,
 FOREIGN KEY (id_vehiculo) REFERENCES vehiculos(id_vehiculo) ON DELETE CASCADE,
 FOREIGN KEY (tipo_licencia) REFERENCES licencia(id_licen) ON DELETE CASCADE,
 FOREIGN KEY (extendida) REFERENCES extendida(id_exten) ON DELETE CASCADE
 );
+
+ALTER TABLE boleta_vehiculo
+ADD no_boleta int;
+
+use pmt_sanfe
 
 create table multa (
 id_multa int identity (1,1) primary key,

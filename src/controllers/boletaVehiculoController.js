@@ -1,85 +1,111 @@
 const db = require("../db/db");
 
-module.exports = {
-    // Insert a new BoletaVehiculo
-    insertBoletaVehiculo: (req, res) => {
-        const {
-            tipo_placa, placa_cod, id_vehiculo, nit_prop, tarjeta_circ, marca, color,
-            tipo_licencia, no_licencia, no_doc_licencia, dpi, extendida, nombre
-        } = req.body;
+exports.crearBoleta = (req, res) => {
+    const {
+        tipo_placa,
+        placa_cod,
+        id_vehiculo,
+        nit_prop,
+        tarjeta_circ,
+        marca,
+        color,
+        tipo_licencia,
+        no_licencia,
+        no_doc_licencia,
+        dpi,
+        extendida,
+        nombre,
+        no_boleta,
+    } = req.body;
 
-        const query = `EXEC sp_InsertBoletaVehiculo 
-            @tipo_placa = ?, @placa_cod = ?, @id_vehiculo = ?, @nit_prop = ?, 
-            @tarjeta_circ = ?, @marca = ?, @color = ?, @tipo_licencia = ?, 
-            @no_licencia = ?, @no_doc_licencia = ?, @dpi = ?, @extendida = ?, @nombre = ?`;
+    const query = `
+        EXEC sp_InsertarBoletaVehiculo 
+            @tipo_placa = ?, 
+            @placa_cod = ?, 
+            @id_vehiculo = ?, 
+            @nit_prop = ?, 
+            @tarjeta_circ = ?, 
+            @marca = ?, 
+            @color = ?, 
+            @tipo_licencia = ?, 
+            @no_licencia = ?, 
+            @no_doc_licencia = ?, 
+            @dpi = ?, 
+            @extendida = ?, 
+            @nombre = ?, 
+            @no_boleta = ?
+    `;
 
-        db.query(
-            query,
-            [
-                tipo_placa, placa_cod, id_vehiculo, nit_prop, tarjeta_circ, marca, color,
-                tipo_licencia, no_licencia, no_doc_licencia, dpi, extendida, nombre,
-            ],
-            (err) => {
-                if (err) {
-                    return res.status(500).json({ error: "Error al insertar boleta", details: err.message });
-                }
-                res.status(201).json({ message: "Boleta creada con éxito" });
-            }
-        );
-    },
+    db.query(query, [tipo_placa, placa_cod, id_vehiculo, nit_prop, tarjeta_circ, marca, color, tipo_licencia, no_licencia, no_doc_licencia, dpi, extendida, nombre, no_boleta], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Error al insertar la boleta" });
+        }
+        res.status(201).json({ message: "Boleta creada exitosamente", id_boleta: result.recordset[0].id_boleta });
+    });
+};
 
-    // Get all BoletaVehiculo
-    getAllBoletas: (req, res) => {
-        const query = "EXEC sp_GetBoletaVehiculo";
-        db.query(query, (err, rows) => {
-            if (err) {
-                return res.status(500).json({ error: "Error al obtener las boletas", details: err.message });
-            }
-            res.status(200).json(rows);
-        });
-    },
+// Obtener boletas (todas o por ID)
+exports.obtenerBoletas = (req, res) => {
+    const { id } = req.params;
 
-    // Get BoletaVehiculo by ID
-    getBoletaById: (req, res) => {
-        const { id_boleta } = req.params;
-        const query = "EXEC sp_GetBoletaVehiculoById @id_boleta = ?";
+    const query = id
+        ? `EXEC sp_ObtenerBoletasVehiculo @id_boleta = ?`
+        : `EXEC sp_ObtenerBoletasVehiculo`;
 
-        db.query(query, [id_boleta], (err, rows) => {
-            if (err) {
-                return res.status(500).json({ error: "Error al obtener la boleta", details: err.message });
-            }
-            if (rows.length === 0) {
-                return res.status(404).json({ message: "Boleta no encontrada" });
-            }
-            res.status(200).json(rows[0]);
-        });
-    },
+    db.query(query, id ? [id] : [], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Error al obtener boletas" });
+        }
+        res.status(200).json(result.recordset);
+    });
+};
 
-    // Update BoletaVehiculo
-    updateBoletaVehiculo: (req, res) => {
-        const { id_boleta } = req.params;
-        const {
-            tipo_placa, placa_cod, id_vehiculo, nit_prop, tarjeta_circ, marca, color,
-            tipo_licencia, no_licencia, no_doc_licencia, dpi, extendida, nombre
-        } = req.body;
+// Actualizar una boleta
+exports.actualizarBoleta = (req, res) => {
+    const { id } = req.params;
+    const {
+        tipo_placa,
+        placa_cod,
+        id_vehiculo,
+        nit_prop,
+        tarjeta_circ,
+        marca,
+        color,
+        tipo_licencia,
+        no_licencia,
+        no_doc_licencia,
+        dpi,
+        extendida,
+        nombre,
+        no_boleta,
+    } = req.body;
 
-        const query = `EXEC sp_UpdateBoletaVehiculo 
-            @id_boleta = ?, @tipo_placa = ?, @placa_cod = ?, @id_vehiculo = ?, @nit_prop = ?, 
-            @tarjeta_circ = ?, @marca = ?, @color = ?, @tipo_licencia = ?, 
-            @no_licencia = ?, @no_doc_licencia = ?, @dpi = ?, @extendida = ?, @nombre = ?`;
+    const query = `
+        EXEC sp_ActualizarBoletaVehiculo 
+            @id_boleta = ?, 
+            @tipo_placa = ?, 
+            @placa_cod = ?, 
+            @id_vehiculo = ?, 
+            @nit_prop = ?, 
+            @tarjeta_circ = ?, 
+            @marca = ?, 
+            @color = ?, 
+            @tipo_licencia = ?, 
+            @no_licencia = ?, 
+            @no_doc_licencia = ?, 
+            @dpi = ?, 
+            @extendida = ?, 
+            @nombre = ?, 
+            @no_boleta = ?
+    `;
 
-        db.query(
-            query,
-            [
-                id_boleta, tipo_placa, placa_cod, id_vehiculo, nit_prop, tarjeta_circ, marca,
-                color, tipo_licencia, no_licencia, no_doc_licencia, dpi, extendida, nombre,
-            ],
-            (err) => {
-                if (err) {
-                    return res.status(500).json({ error: "Error al actualizar boleta", details: err.message });
-                }
-                res.status(200).json({ message: "Boleta actualizada con éxito" });
-            }
-        );
-    },
+    db.query(query, [id, tipo_placa, placa_cod, id_vehiculo, nit_prop, tarjeta_circ, marca, color, tipo_licencia, no_licencia, no_doc_licencia, dpi, extendida, nombre, no_boleta], (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: "Error al actualizar la boleta" });
+        }
+        res.status(200).json({ message: "Boleta actualizada exitosamente", filas_actualizadas: result.recordset[0].filas_actualizadas });
+    });
 };

@@ -41,6 +41,9 @@ app.use(bodyParser.json());
    res.sendFile(path.join(__dirname, "public", "registros.html"));
 });
 
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
 
 // Rutas
 app.use("/api/usuarios", usuariosRoutes);
