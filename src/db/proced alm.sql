@@ -383,9 +383,9 @@ END;
 
 --articulos
 EXEC sp_InsertarArticulo 
-    @numero_artic = '182.20', 
-    @detalle = 'Por no ceder el paso a los ciclistas cuando tengan la prioridad', 
-    @precio = 300;
+    @numero_artic = '185.c.2', 
+    @detalle = 'Quienes no atiendan los requerimientos de los vehículos de emergencia, según se establece el artículo 127 del presente Reglamento', 
+    @precio = 25000;
 
 EXEC sp_ObtenerArticulos;
 EXEC sp_ObtenerArticulos @id_artic = 1;
@@ -538,7 +538,7 @@ EXEC sp_InsertarBoletaVehiculo
     @no_licencia = 'LIC123',
     @no_doc_licencia = 'DOC456',
     @dpi = '1234567890123',
-    @extendida = 4,
+    @extendida = 2,
     @nombre = 'Juan Pérez',
     @no_boleta = 789;
 EXEC sp_ObtenerBoletasVehiculo;
@@ -556,7 +556,7 @@ EXEC sp_ActualizarBoletaVehiculo
     @no_licencia = 'LIC456',
     @no_doc_licencia = 'DOC789',
     @dpi = '9876543210987',
-    @extendida = 5,
+    @extendida = 2,
     @nombre = 'Carlos López',
     @no_boleta = 123;
 

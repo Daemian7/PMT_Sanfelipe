@@ -15,7 +15,7 @@ const estadoRoutes = require("./src/routes/estadoRoutes");
 const sessionRoutes = require("./src/routes/sessionRoutes");
 const boletaVehiculoRoutes = require("./src/routes/boletaVehiculoRoutes");
 const multaRoutes = require("./src/routes/multaRoutes");
-const multaDetalleRoutes = require("./src/routes/multaDetalleRoutes");
+// const multaDetalleRoutes = require("./src/routes/multaDetalleRoutes");
 const boletasRoutes = require("./src/routes/boletas");
 const boletasFinalRoutes = require("./src/routes/boletasFinal");
 
@@ -58,7 +58,7 @@ app.use("/api/estados", estadoRoutes);
 app.use("/api/session", sessionRoutes);
 app.use("/api/boleta-vehiculo", boletaVehiculoRoutes);
 app.use("/api/multa", multaRoutes);
-app.use("/api/multa-detalle", multaDetalleRoutes);
+// app.use("/api/multa-detalle", multaDetalleRoutes);
 app.use("/api/boletas", boletasRoutes);
 app.use("/api/boletas-finales", boletasFinalRoutes);
 

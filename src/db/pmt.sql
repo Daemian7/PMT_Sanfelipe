@@ -112,10 +112,12 @@ create table multa_detalle(
 id_detalle int identity (1,1) primary key,
 id_multa int not null,
 id_articulo int not null,
-sub_total float
 foreign key (id_multa) references multa(id_multa) on delete cascade,
 foreign key (id_articulo) references articulos(id_artic) on delete cascade
 );
+
+ALTER TABLE multa_detalle
+DROP COLUMN sub_total;
 
 --ya lo cambie lol
 --ALTER TABLE multa_detalle

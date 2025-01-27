@@ -1,86 +1,120 @@
 const db = require("../db/db");
 
-// Crear detalle de multa
-const createMultaDetalle = (req, res) => {
-  const { id_multa, id_articulo, sub_total } = req.body;
-  const query = "EXEC sp_InsertMultaDetalle @id_multa = ?, @id_articulo = ?, @sub_total = ?";
-
-  db.query(query, [id_multa, id_articulo, sub_total], (err) => {
-    if (err) {
-      res.status(500).send({ error: "Error al crear el detalle de multa", details: err });
-    } else {
-      res.status(201).send({ message: "Detalle de multa creado correctamente" });
+// Obtener todos los detalles de una multa
+const getDetallesByMultaId = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const [rows] = await db.query(
+            "SELECT md.id_detalle, md.id_multa, md.id_articulo, a.detalle, a.precio " +
+            "FROM multa_detalle md " +
+            "JOIN articulos a ON md.id_articulo = a.id_artic " +
+            "WHERE md.id_multa = ?",
+            [id]
+        );
+        res.json({ success: true, data: rows });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
-  });
 };
 
-// Obtener todos los detalles de multas
-const getAllMultaDetalles = (req, res) => {
-  const query = "EXEC sp_GetMultaDetalles";
+// Agregar un detalle a una multa
+const createDetalle = async (req, res) => {
+    const { id } = req.params; // ID de la multa
+    const { id_articulo } = req.body; // ID del artículo
+    try {
+        // 1. Insertar el detalle en la tabla multa_detalle
+        await db.query(
+            "INSERT INTO multa_detalle (id_multa, id_articulo) VALUES (?, ?)",
+            [id, id_articulo]
+        );
 
-  db.query(query, [], (err, rows) => {
-    if (err) {
-      res.status(500).send({ error: "Error al obtener los detalles de multas", details: err });
-    } else {
-      res.status(200).send(rows);
+        // 2. Actualizar el total en la tabla multa
+        await db.query(
+            `UPDATE multa
+             SET total = (
+                 SELECT SUM(a.precio)
+                 FROM multa_detalle md
+                 JOIN articulos a ON md.id_articulo = a.id_artic
+                 WHERE md.id_multa = multa.id_multa
+             )
+             WHERE id_multa = ?`,
+            [id]
+        );
+
+        res.status(201).json({ success: true, message: "Detalle creado y total actualizado" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
-  });
 };
 
-// Obtener detalle de multa por ID
-const getMultaDetalleById = (req, res) => {
-  const { id } = req.params;
-  const query = "EXEC sp_GetMultaDetalleById @id_detalle = ?";
+// Actualizar un detalle específico
+const updateDetalle = async (req, res) => {
+    const { id, id_detalle } = req.params;
+    const { id_articulo } = req.body;
+    try {
+        // Actualizar el detalle
+        const [result] = await db.query(
+            "UPDATE multa_detalle SET id_articulo = ? WHERE id_multa = ? AND id_detalle = ?",
+            [id_articulo, id, id_detalle]
+        );
 
-  db.query(query, [id], (err, rows) => {
-    if (err) {
-      res.status(500).send({ error: "Error al obtener el detalle de multa", details: err });
-    } else {
-      res.status(200).send(rows[0]);
+        if (result.affectedRows === 0)
+            return res.status(404).json({ success: false, message: "Detalle no encontrado" });
+
+        // Actualizar el total en la tabla multa
+        await db.query(
+            `UPDATE multa
+             SET total = (
+                 SELECT SUM(a.precio)
+                 FROM multa_detalle md
+                 JOIN articulos a ON md.id_articulo = a.id_artic
+                 WHERE md.id_multa = multa.id_multa
+             )
+             WHERE id_multa = ?`,
+            [id]
+        );
+
+        res.json({ success: true, message: "Detalle actualizado y total recalculado" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
-  });
 };
 
-// Actualizar detalle de multa y actualizar el total
-const updateMultaDetalle = (req, res) => {
-  const { id } = req.params;
-  const { id_multa, id_articulo, sub_total } = req.body;
-  const query = "EXEC sp_UpdateMultaDetalle @id_detalle = ?, @id_multa = ?, @id_articulo = ?, @sub_total = ?";
+// Eliminar un detalle específico
+const deleteDetalle = async (req, res) => {
+    const { id, id_detalle } = req.params;
+    try {
+        // Eliminar el detalle
+        const [result] = await db.query(
+            "DELETE FROM multa_detalle WHERE id_multa = ? AND id_detalle = ?",
+            [id, id_detalle]
+        );
 
-  db.query(query, [id, id_multa, id_articulo, sub_total], (err) => {
-    if (err) {
-      res.status(500).send({ error: "Error al actualizar el detalle de multa", details: err });
-    } else {
-      // Actualizar el total de la multa
-      const updateQuery = "EXEC sp_UpdateMultaTotal @id_multa = ?";
-      db.query(updateQuery, [id_multa], (updateErr) => {
-        if (updateErr) {
-          res.status(500).send({ error: "Error al actualizar el total de la multa", details: updateErr });
-        } else {
-          res.status(200).send({ message: "Detalle de multa actualizado y total actualizado correctamente" });
-        }
-      });
+        if (result.affectedRows === 0)
+            return res.status(404).json({ success: false, message: "Detalle no encontrado" });
+
+        // Actualizar el total en la tabla multa
+        await db.query(
+            `UPDATE multa
+             SET total = (
+                 SELECT SUM(a.precio)
+                 FROM multa_detalle md
+                 JOIN articulos a ON md.id_articulo = a.id_artic
+                 WHERE md.id_multa = multa.id_multa
+             )
+             WHERE id_multa = ?`,
+            [id]
+        );
+
+        res.json({ success: true, message: "Detalle eliminado y total recalculado" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
     }
-  });
 };
 
-
-// Obtener la suma de subtotales para una multa específica
-// const getMultaSubtotales = (req, res) => {
-//   const { id } = req.params;
-//   const query = "EXEC sp_GetMultaTotalSubtotales @id_multa = ?";
-
-//   db.query(query, [id], (err, rows) => {
-//     if (err) {
-//       res.status(500).send({ error: "Error al calcular los subtotales", details: err });
-//     } else if (rows.length === 0 || rows[0].total_subtotales === null) {
-//       res.status(404).send({ message: "No se encontraron subtotales para esta multa" });
-//     } else {
-//       res.status(200).send({ total_subtotales: rows[0].total_subtotales });
-//     }
-//   });
-// };
-
-
-
-module.exports = { createMultaDetalle, getAllMultaDetalles, getMultaDetalleById, updateMultaDetalle };
+module.exports = {
+    getDetallesByMultaId,
+    createDetalle,
+    updateDetalle,
+    deleteDetalle
+};

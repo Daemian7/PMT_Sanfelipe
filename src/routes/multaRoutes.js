@@ -1,13 +1,17 @@
 const express = require("express");
-const { createMulta, getAllMultas, getMultaById, updateMulta } = require("../controllers/multaController");
-
 const router = express.Router();
+const multaController = require("../controllers/multaController");
 
-router.post("/", createMulta);
-router.get("/", getAllMultas);
-router.get("/:id", getMultaById);
-router.put("/:id", updateMulta);
-// router.put("/update-total/:id", updateMultaTotal);
+// Crear una nueva multa
+router.post("/", multaController.createMulta);
 
+// Obtener todas las multas
+router.get("/", multaController.getMultas);
+
+// Obtener una multa por ID
+router.get("/:id", multaController.getMultaById);
+
+// Actualizar una multa
+router.put("/:id", multaController.updateMulta);
 
 module.exports = router;
