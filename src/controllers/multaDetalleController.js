@@ -1,120 +1,64 @@
 const db = require("../db/db");
 
-// Obtener todos los detalles de una multa
-const getDetallesByMultaId = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const [rows] = await db.query(
-            "SELECT md.id_detalle, md.id_multa, md.id_articulo, a.detalle, a.precio " +
-            "FROM multa_detalle md " +
-            "JOIN articulos a ON md.id_articulo = a.id_artic " +
-            "WHERE md.id_multa = ?",
-            [id]
-        );
-        res.json({ success: true, data: rows });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-// Agregar un detalle a una multa
-const createDetalle = async (req, res) => {
-    const { id } = req.params; // ID de la multa
-    const { id_articulo } = req.body; // ID del artículo
-    try {
-        // 1. Insertar el detalle en la tabla multa_detalle
-        await db.query(
-            "INSERT INTO multa_detalle (id_multa, id_articulo) VALUES (?, ?)",
-            [id, id_articulo]
-        );
-
-        // 2. Actualizar el total en la tabla multa
-        await db.query(
-            `UPDATE multa
-             SET total = (
-                 SELECT SUM(a.precio)
-                 FROM multa_detalle md
-                 JOIN articulos a ON md.id_articulo = a.id_artic
-                 WHERE md.id_multa = multa.id_multa
-             )
-             WHERE id_multa = ?`,
-            [id]
-        );
-
-        res.status(201).json({ success: true, message: "Detalle creado y total actualizado" });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-// Actualizar un detalle específico
-const updateDetalle = async (req, res) => {
-    const { id, id_detalle } = req.params;
-    const { id_articulo } = req.body;
-    try {
-        // Actualizar el detalle
-        const [result] = await db.query(
-            "UPDATE multa_detalle SET id_articulo = ? WHERE id_multa = ? AND id_detalle = ?",
-            [id_articulo, id, id_detalle]
-        );
-
-        if (result.affectedRows === 0)
-            return res.status(404).json({ success: false, message: "Detalle no encontrado" });
-
-        // Actualizar el total en la tabla multa
-        await db.query(
-            `UPDATE multa
-             SET total = (
-                 SELECT SUM(a.precio)
-                 FROM multa_detalle md
-                 JOIN articulos a ON md.id_articulo = a.id_artic
-                 WHERE md.id_multa = multa.id_multa
-             )
-             WHERE id_multa = ?`,
-            [id]
-        );
-
-        res.json({ success: true, message: "Detalle actualizado y total recalculado" });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
-// Eliminar un detalle específico
-const deleteDetalle = async (req, res) => {
-    const { id, id_detalle } = req.params;
-    try {
-        // Eliminar el detalle
-        const [result] = await db.query(
-            "DELETE FROM multa_detalle WHERE id_multa = ? AND id_detalle = ?",
-            [id, id_detalle]
-        );
-
-        if (result.affectedRows === 0)
-            return res.status(404).json({ success: false, message: "Detalle no encontrado" });
-
-        // Actualizar el total en la tabla multa
-        await db.query(
-            `UPDATE multa
-             SET total = (
-                 SELECT SUM(a.precio)
-                 FROM multa_detalle md
-                 JOIN articulos a ON md.id_articulo = a.id_artic
-                 WHERE md.id_multa = multa.id_multa
-             )
-             WHERE id_multa = ?`,
-            [id]
-        );
-
-        res.json({ success: true, message: "Detalle eliminado y total recalculado" });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
-};
-
 module.exports = {
-    getDetallesByMultaId,
-    createDetalle,
-    updateDetalle,
-    deleteDetalle
+    // Crear un nuevo detalle de multa
+    createMultaDetalle: (req, res) => {
+        const { id_multa, id_articulo } = req.body;
+
+        const query = "EXEC sp_InsertMultaDetalle @id_multa = ?, @id_articulo = ?";
+        db.query(query, [id_multa, id_articulo], (err, rows) => {
+            if (err) {
+                return res.status(500).json({ error: "Error al insertar detalle de multa", details: err.message });
+            }
+            res.status(201).json({ 
+                message: "Detalle de multa creado", 
+                newDetalleId: rows[0]?.NewDetalleId || null // Devuelve el ID del nuevo detalle, si lo hay
+            });
+        });
+    },
+
+    // Obtener todos los detalles de multas
+    getMultaDetalles: (req, res) => {
+        const query = "EXEC sp_GetMultaDetalles";
+        db.query(query, [], (err, rows) => {
+            if (err) {
+                return res.status(500).json({ error: "Error al obtener detalles de multas", details: err.message });
+            }
+            res.status(200).json(rows);
+        });
+    },
+
+    // Obtener un detalle de multa por ID
+    getMultaDetalleById: (req, res) => {
+        const { id_detalle } = req.params;
+
+        const query = "EXEC sp_GetMultaDetalleById @id_detalle = ?";
+        db.query(query, [id_detalle], (err, rows) => {
+            if (err) {
+                return res.status(500).json({ error: "Error al obtener detalle de multa", details: err.message });
+            }
+            if (rows.length === 0) {
+                return res.status(404).json({ message: "Detalle de multa no encontrado" });
+            }
+            res.status(200).json(rows[0]);
+        });
+    },
+
+    // Actualizar un detalle de multa
+    updateMultaDetalle: (req, res) => {
+        const { id_detalle } = req.params;
+        const { id_multa, id_articulo } = req.body;
+
+        const query = "EXEC sp_UpdateMultaDetalle @id_detalle = ?, @id_multa = ?, @id_articulo = ?";
+        db.query(query, [id_detalle, id_multa, id_articulo], (err) => {
+            if (err) {
+                if (err.message.includes("No se encontró")) {
+                    return res.status(404).json({ error: "Detalle de multa no encontrado" });
+                }
+                return res.status(500).json({ error: "Error al actualizar detalle de multa", details: err.message });
+            }
+            res.status(200).json({ message: "Detalle de multa actualizado" });
+        });
+    },
+
 };

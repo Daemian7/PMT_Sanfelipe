@@ -564,104 +564,135 @@ EXEC sp_ActualizarBoletaVehiculo
 
 
 
-	CREATE PROCEDURE sp_InsertMulta
+-- Insertar una nueva multa
+CREATE PROCEDURE sp_InsertMulta
     @id_boleta INT,
     @total FLOAT
 AS
 BEGIN
     INSERT INTO multa (id_boleta, total)
     VALUES (@id_boleta, @total);
-END;
-GO
 
+    SELECT SCOPE_IDENTITY() AS NewMultaId;
+END;
+
+-- Obtener todas las multas
 CREATE PROCEDURE sp_GetMultas
 AS
 BEGIN
-    SELECT id_multa, id_boleta, total
-    FROM multa;
+    SELECT * FROM multa;
 END;
-GO
 
+-- Obtener una multa por ID
 CREATE PROCEDURE sp_GetMultaById
     @id_multa INT
 AS
 BEGIN
-    SELECT id_multa, id_boleta, total
-    FROM multa
-    WHERE id_multa = @id_multa;
+    SELECT * FROM multa WHERE id_multa = @id_multa;
 END;
-GO
 
+-- Actualizar una multa
 CREATE PROCEDURE sp_UpdateMulta
     @id_multa INT,
     @id_boleta INT,
     @total FLOAT
 AS
 BEGIN
+    IF NOT EXISTS (SELECT 1 FROM multa WHERE id_multa = @id_multa)
+    BEGIN
+        THROW 50000, 'No se encontró la multa.', 1;
+    END
+
     UPDATE multa
-    SET id_boleta = @id_boleta,
-        total = @total
+    SET id_boleta = @id_boleta, total = @total
     WHERE id_multa = @id_multa;
 END;
-GO
 
-
---multa
-EXEC sp_InsertMulta @id_boleta = 1, @total = 250;
-EXEC sp_GetMultas;
-EXEC sp_GetMultaById @id_multa = 1;
-EXEC sp_UpdateMulta @id_multa = 1, @id_boleta = 2, @total = 200.50;
-
-
-CREATE PROCEDURE sp_InsertMultaDetalle
-    @id_multa INT,
-    @id_articulo INT,
-    @sub_total FLOAT
+-- Eliminar una multa
+CREATE PROCEDURE sp_DeleteMulta
+    @id_multa INT
 AS
 BEGIN
-    INSERT INTO multa_detalle (id_multa, id_articulo, sub_total)
-    VALUES (@id_multa, @id_articulo, @sub_total);
+    IF NOT EXISTS (SELECT 1 FROM multa WHERE id_multa = @id_multa)
+    BEGIN
+        THROW 50000, 'No se encontró la multa.', 1;
+    END
+
+    DELETE FROM multa WHERE id_multa = @id_multa;
+END;
+
+
+
+
+
+
+
+-- 1. Insertar un nuevo detalle de multa
+CREATE PROCEDURE sp_InsertMultaDetalle
+    @id_multa INT,
+    @id_articulo INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    INSERT INTO multa_detalle (id_multa, id_articulo)
+    VALUES (@id_multa, @id_articulo);
+
+    SELECT SCOPE_IDENTITY() AS NewDetalleId;
 END;
 GO
 
+-- 2. Obtener todos los detalles de multas
 CREATE PROCEDURE sp_GetMultaDetalles
 AS
 BEGIN
-    SELECT id_detalle, id_multa, id_articulo, sub_total
+    SET NOCOUNT ON;
+    SELECT 
+        id_detalle,
+        id_multa,
+        id_articulo
     FROM multa_detalle;
 END;
 GO
 
+-- 3. Obtener un detalle de multa por ID
 CREATE PROCEDURE sp_GetMultaDetalleById
     @id_detalle INT
 AS
 BEGIN
-    SELECT id_detalle, id_multa, id_articulo, sub_total
+    SET NOCOUNT ON;
+    SELECT 
+        id_detalle,
+        id_multa,
+        id_articulo
     FROM multa_detalle
     WHERE id_detalle = @id_detalle;
 END;
 GO
 
+-- 4. Actualizar un detalle de multa
 CREATE PROCEDURE sp_UpdateMultaDetalle
     @id_detalle INT,
     @id_multa INT,
-    @id_articulo INT,
-    @sub_total FLOAT
+    @id_articulo INT
 AS
 BEGIN
-    UPDATE multa_detalle
-    SET id_multa = @id_multa,
-        id_articulo = @id_articulo,
-        sub_total = @sub_total
-    WHERE id_detalle = @id_detalle;
+    SET NOCOUNT ON;
+    IF EXISTS (SELECT 1 FROM multa_detalle WHERE id_detalle = @id_detalle)
+    BEGIN
+        UPDATE multa_detalle
+        SET id_multa = @id_multa,
+            id_articulo = @id_articulo
+        WHERE id_detalle = @id_detalle;
+    END
+    ELSE
+    BEGIN
+        RAISERROR('No se encontró el detalle de multa con el ID especificado.', 16, 1);
+    END
 END;
-GO
 
---multa detalle
-EXEC sp_InsertMultaDetalle @id_multa = 1, @id_articulo = 2, @sub_total = 100.50;
-EXEC sp_GetMultaDetalles;
-EXEC sp_GetMultaDetalleById @id_detalle = 1;
-EXEC sp_UpdateMultaDetalle @id_detalle = 1, @id_multa = 2, @id_articulo = 3, @sub_total = 150.75;
+
+
+
 
 
 

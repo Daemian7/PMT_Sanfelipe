@@ -126,3 +126,37 @@
   .edit-btn:hover {
     color: blue;
   }
+
+  .button-container {
+    display: flex;
+    gap: 10px; /* Espacio entre los botones */
+    margin-bottom: 15px;
+}
+
+.button {
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    border: none;
+    border-radius: 20px; /* Orillas redondeadas */
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.button-green {
+    background-color: #7fcc45;
+}
+
+.button-blue {
+    background-color: #41abf1;
+}
+
+.button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.button:active {
+    transform: scale(0.95);
+}
