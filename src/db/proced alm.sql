@@ -449,28 +449,87 @@ EXEC sp_ActualizarFirma @id_firma = 1, @tipo_firma = 'Firma Electrónica Actualiz
 
 
 
-CREATE PROCEDURE sp_InsertarBoletaVehiculo
-    @tipo_placa INT,
-    @placa_cod NVARCHAR(8),
-    @id_vehiculo INT,
-    @nit_prop INT,
-    @tarjeta_circ NVARCHAR(100),
-    @marca NVARCHAR(100),
-    @color NVARCHAR(100),
-    @tipo_licencia INT,
-    @no_licencia NVARCHAR(100),
-    @no_doc_licencia NVARCHAR(100),
-    @dpi NVARCHAR(13),
-    @extendida INT,
-    @nombre NVARCHAR(255),
-    @no_boleta INT
+CREATE PROCEDURE InsertarBoletaVehiculo
+   @tipo_placa INT,
+   @placa_cod NVARCHAR(8),
+   @id_vehiculo INT,
+   @nit_prop INT,
+   @tarjeta_circ NVARCHAR(100),
+   @marca NVARCHAR(100),
+   @color NVARCHAR(100),
+   @tipo_licencia INT,
+   @no_licencia NVARCHAR(100),
+   @no_doc_licencia NVARCHAR(100),
+   @dpi NVARCHAR(13),
+   @extendida INT,
+   @nombre NVARCHAR(255),
+   @no_boleta INT
 AS
 BEGIN
-    INSERT INTO boleta_vehiculo (tipo_placa, placa_cod, id_vehiculo, nit_prop, tarjeta_circ, marca, color, tipo_licencia, no_licencia, no_doc_licencia, dpi, extendida, nombre, no_boleta)
-    VALUES (@tipo_placa, @placa_cod, @id_vehiculo, @nit_prop, @tarjeta_circ, @marca, @color, @tipo_licencia, @no_licencia, @no_doc_licencia, @dpi, @extendida, @nombre, @no_boleta);
+   BEGIN TRY
+       -- Iniciar una transacción
+       BEGIN TRANSACTION;
 
-    SELECT SCOPE_IDENTITY() AS id_boleta; -- Devuelve el ID del registro creado
+       -- Insertar datos en la tabla boleta_vehiculo
+       INSERT INTO boleta_vehiculo (
+           tipo_placa,
+           placa_cod,
+           id_vehiculo,
+           nit_prop,
+           tarjeta_circ,
+           marca,
+           color,
+           tipo_licencia,
+           no_licencia,
+           no_doc_licencia,
+           dpi,
+           extendida,
+           nombre,
+           no_boleta
+       )
+       VALUES (
+           @tipo_placa,
+           @placa_cod,
+           @id_vehiculo,
+           @nit_prop,
+           @tarjeta_circ,
+           @marca,
+           @color,
+           @tipo_licencia,
+           @no_licencia,
+           @no_doc_licencia,
+           @dpi,
+           @extendida,
+           @nombre,
+           @no_boleta
+       );
+
+       -- Confirmar la transacción
+       COMMIT TRANSACTION;
+
+       -- Devolver el ID generado (opcional)
+       SELECT SCOPE_IDENTITY() AS id_boleta;
+
+   END TRY
+   BEGIN CATCH
+       -- Si ocurre un error, revertir la transacción
+       ROLLBACK TRANSACTION;
+
+       -- Manejar el error
+       DECLARE @ErrorMessage NVARCHAR(4000);
+       DECLARE @ErrorSeverity INT;
+       DECLARE @ErrorState INT;
+
+       SELECT 
+           @ErrorMessage = ERROR_MESSAGE(),
+           @ErrorSeverity = ERROR_SEVERITY(),
+           @ErrorState = ERROR_STATE();
+
+       RAISERROR (@ErrorMessage, @ErrorSeverity, @ErrorState);
+   END CATCH
 END;
+
+
 
 CREATE PROCEDURE sp_ObtenerBoletasVehiculo
     @id_boleta INT = NULL -- Parámetro opcional

@@ -46,7 +46,7 @@
             </select>
   
             <label for="placa">Placa</label>
-            <input type="text" id="placa" placeholder="Número de placa">
+            <input type="text" id="placa" style="text-transform: uppercase;" placeholder="Número de placa">
   
             <label for="tipo-vehiculo">Tipo de Vehículo</label>
             <select id="tipo-vehiculo">
@@ -119,8 +119,11 @@
             <select id="articulo" style="width: 700px;">
               <option>Seleccionar artículo</option>
             </select>
-            <button type="submit" class="btn">Agregar</button>
-             <!-- aqui van a ir todos los articulos que se agreguen al carrito xd -->
+            <button type="button" class="btn" id="addarticulo">Agregar</button>
+            <!-- aqui van a ir todos los articulos que se agreguen al carrito xd -->
+              <div class="articulosadd">
+
+              </div>
               <br> <br>
              <div class="form-section">
             <label for="fechainfo">Si Cancela hasta</label>
@@ -160,12 +163,12 @@
                 <option>Seleccionar infraccion</option>
               </select>
 
-              <button type="submit" class="btn" style="width: 150px;">Agregar Imagen</button><input type="text" id="imagen" disabled placeholder="url imagen"> 
+              <button  class="btn" style="width: 150px;">Agregar Imagen</button><input type="text" id="imagen" disabled placeholder="url imagen"> 
             </div>
           </fieldset>
             <fieldset>
-                <button type="submit" class="btn" style="background-color:#80d141 ; width: 480px; height: 50px;" >Guardar</button>
-                <button type="submit" class="btn" style="background-color:#5497d0 ; width: 480px; height: 50px;">Limpiar</button>
+                <button  class="btn" style="background-color:#80d141 ; width: 480px; height: 50px;" id="submit-button" >Guardar</button>
+                <button  class="btn" style="background-color:#5497d0 ; width: 480px; height: 50px;">Limpiar</button>
             </fieldset>
           
         </form>
@@ -180,6 +183,7 @@
 <script src="js/agente.js"></script>
 <script src="js/firma.js"></script>
 <script src="js/infraccion.js"></script>
+<script src="js/registrarboleta.js"></script>
 <script src="js/script.js"></script>
   </body>
 </html>

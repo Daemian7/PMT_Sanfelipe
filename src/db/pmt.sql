@@ -149,6 +149,7 @@ create TABLE boleta_final (
     id_info_boleta INT NOT NULL,
     id_multa INT NOT NULL,
     estado INT NOT NULL,
+	vencimiento date,
     CONSTRAINT FK_boleta_final_boleta_vehiculo FOREIGN KEY (id_boleta) 
         REFERENCES boleta_vehiculo(id_boleta) 
         ON DELETE NO ACTION,
@@ -162,7 +163,7 @@ constraint FK_estado_boleta foreign key(estado) references estados(id_estado) on
 );
 
 ALTER TABLE boleta_final
-ADD imagen VARBINARY(MAX);
+ADD vencimiento date;
 
 create table session_init (
 id_sess int identity (1,1) primary key,
