@@ -14,4 +14,6 @@ router.get("/:id", multaController.getMultaById);
 // Actualizar una multa
 router.put("/:id", multaController.updateMulta);
 
+router.post("/insert", multaController.insertMulta);
+
 module.exports = router;

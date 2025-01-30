@@ -57,4 +57,26 @@ module.exports = {
             res.status(200).json({ message: "Multa actualizada" });
         });
     },
+    
+
+       // Insertar una nueva multa automáticamente
+       insertMulta: async (req, res) => {  // <---- CORREGIDO
+        try {
+            const query = `EXEC sp_AddMulta;`;
+            const result = await new Promise((resolve, reject) => {
+                db.query(query, [], (error, rows) => {
+                    if (error) reject(error);
+                    else resolve(rows);
+                });
+            });
+
+            console.log("Resultado de la inserción:", result);
+            res.json({ message: "Multa insertada correctamente", result });
+        } catch (error) {
+            console.error("Error al insertar multa:", error);
+            res.status(500).json({ error: "Error al insertar multa", details: error.message });
+        }
+    },
+
 };
+

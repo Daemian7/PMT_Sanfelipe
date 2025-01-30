@@ -1,19 +1,10 @@
-const express = require("express");
-const {
-    getAllBoletas,
-    getBoletaById,
-    createBoleta,
-    updateBoleta,
-    deleteBoleta,
-} = require("../controllers/boletasController");
-
+const express = require('express');
 const router = express.Router();
+const boletasController = require("../controllers/boletasController");
 
-// Define the routes and map them to the controller functions
-router.get("/", getAllBoletas);
-router.get("/:id", getBoletaById);
-router.post("/", createBoleta);
-router.put("/:id", updateBoleta);
-router.delete("/:id", deleteBoleta);
+router.post("/", boletasController.insertBoleta);  // Insertar boleta
+router.get("/", boletasController.getBoletas);  // Obtener boletas
+router.put("/:id", boletasController.updateBoleta);  // Actualizar boleta
+
 
 module.exports = router;

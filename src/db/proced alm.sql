@@ -763,31 +763,32 @@ CREATE PROCEDURE sp_InsertInfoBoleta
     @id_usuario INT,
     @observaciones NVARCHAR(500),
     @id_firma INT,
-    @id_infrac INT
+    @id_infrac INT,
+    @id_boleta INT = NULL -- Parámetro opcional
 AS
 BEGIN
-    INSERT INTO info_boleta (ubicacion, fecha, hora, id_usuario, observaciones, id_firma, id_infrac)
-    VALUES (@ubicacion, @fecha, @hora, @id_usuario, @observaciones, @id_firma, @id_infrac);
+    INSERT INTO info_boleta (ubicacion, fecha, hora, id_usuario, observaciones, id_firma, id_infrac, id_boleta)
+    VALUES (@ubicacion, @fecha, @hora, @id_usuario, @observaciones, @id_firma, @id_infrac, @id_boleta);
+
+    SELECT SCOPE_IDENTITY() AS id_info; -- Devuelve el ID del nuevo registro
 END;
-GO
 
 CREATE PROCEDURE sp_GetInfoBoletas
+    @id_info INT = NULL -- Parámetro opcional
 AS
 BEGIN
-    SELECT id_info, ubicacion, fecha, hora, id_usuario, observaciones, id_firma, id_infrac
-    FROM info_boleta;
+    IF @id_info IS NULL
+    BEGIN
+        SELECT * 
+        FROM info_boleta;
+    END
+    ELSE
+    BEGIN
+        SELECT * 
+        FROM info_boleta
+        WHERE id_info = @id_info;
+    END
 END;
-GO
-
-CREATE PROCEDURE sp_GetInfoBoletaById
-    @id_info INT
-AS
-BEGIN
-    SELECT id_info, ubicacion, fecha, hora, id_usuario, observaciones, id_firma, id_infrac
-    FROM info_boleta
-    WHERE id_info = @id_info;
-END;
-GO
 
 CREATE PROCEDURE sp_UpdateInfoBoleta
     @id_info INT,
@@ -797,7 +798,8 @@ CREATE PROCEDURE sp_UpdateInfoBoleta
     @id_usuario INT,
     @observaciones NVARCHAR(500),
     @id_firma INT,
-    @id_infrac INT
+    @id_infrac INT,
+    @id_boleta INT = NULL -- Parámetro opcional
 AS
 BEGIN
     UPDATE info_boleta
@@ -807,24 +809,34 @@ BEGIN
         id_usuario = @id_usuario,
         observaciones = @observaciones,
         id_firma = @id_firma,
-        id_infrac = @id_infrac
+        id_infrac = @id_infrac,
+        id_boleta = @id_boleta
     WHERE id_info = @id_info;
 END;
-GO
 
 
---info boleta
 EXEC sp_InsertInfoBoleta 
-@ubicacion = 'Entrada al palmarcito',
-@fecha = '2025-01-01', 
-@hora = '12:30:00', 
-@id_usuario = 1, 
-@observaciones = 'Observaciones sobre la boleta', 
-@id_firma = 2, 
-@id_infrac = 1;
+    @ubicacion = 'Ubicación de prueba', 
+    @fecha = '2025-01-28', 
+    @hora = '12:30:00', 
+    @id_usuario = 1, 
+    @observaciones = 'Observación de prueba', 
+    @id_firma = 2, 
+    @id_infrac = 3,
+	 @id_boleta = 3;
 EXEC sp_GetInfoBoletas;
-EXEC sp_GetInfoBoletaById @id_info = 1;
-EXEC sp_UpdateInfoBoleta @id_info = 1, @ubicacion = 'Alajuela', @fecha = '2025-01-02', @hora = '14:00:00', @id_usuario = 2, @observaciones = 'Nueva observación', @id_firma = 2, @id_infrac = 3;
+EXEC sp_GetInfoBoletas @id_info = 1;
+EXEC sp_UpdateInfoBoleta
+    @id_info = 5,
+    @ubicacion = 'Nueva ubicación',
+    @fecha = '2025-01-29',
+    @hora = '15:00:00',
+    @id_usuario = 2,
+    @observaciones = 'Actualización de observación',
+    @id_firma = 3,
+    @id_infrac = 2,
+    @id_boleta = 3; 
+
 
 
 

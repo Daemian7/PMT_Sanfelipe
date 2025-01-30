@@ -135,12 +135,23 @@ hora time,
 id_usuario int not null,
 observaciones nvarchar(500),
 id_firma int not null,
-id_infrac int not null
+id_infrac int not null,
+id_boleta int,
 foreign key (id_usuario) references Usuarios(Id_user) on delete cascade,
 foreign key (id_firma) references firma(id_firma) on delete cascade,
-foreign key (id_infrac) references infraccion(id_ifrac) on delete cascade
+foreign key (id_infrac) references infraccion(id_ifrac) on delete cascade,
+FOREIGN KEY (id_boleta) REFERENCES boleta_vehiculo(id_boleta) on delete cascade
 );
 
+ALTER TABLE info_boleta
+DROP COLUMN info_boleta;
+
+ALTER TABLE info_boleta
+ADD CONSTRAINT fk_boleta FOREIGN KEY (id_boleta) REFERENCES boleta_vehiculo(id_boleta) on delete cascade;
+
+
+ALTER TABLE info_boleta
+DROP CONSTRAINT fk_boleta;
 
 
 create TABLE boleta_final (

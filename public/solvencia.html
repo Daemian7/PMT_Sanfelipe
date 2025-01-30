@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Infracciones</title>
+    <link rel="stylesheet" href="css/solvencia.css">
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <!-- Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="css/boleta1.css">
+        <link rel="icon" href="img/logopmt.ico" type="image/x-icon">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo"> 
+          <img src="img/logopmt.png" alt="" width="80" align = "left">
+          <h1>PMT</h1>
+          <p>San Felipe Retalhuleu</p>
+        </div>
+        <nav class="menu">
+          <ul>
+            <li><a href="/index">Inicio</a></li>
+            <li><a href="/boleta">Ingreso de Boleta</a></li>
+            <li><a href="/registros">Ver Boletas</a></li>            
+            <li><a href="/solvencia">Solvencias</a></li>
+            <li><a href="#">Configuración</a></li>
+          </ul>
+        </nav>
+      </aside>
+
+    <div class="content">
+        <div class="container">
+            <h2>Consulta de Infracciones</h2>
+            <br>
+            <div class="form-group">
+                <h4>Consulta por Tipo de Placa</h4>
+                <br>
+                <select id="placa">
+                    <option value="1">Seleccione una opcion</option>
+                </select>
+                <button id="btn_placa">Consultar placa</button>
+            </div>
+            <div class="form-group">
+                <h4>Búsqueda de Infractores</h4>
+                <br>
+                <select id="searchType" onchange="updatePlaceholder()">
+                    <option value="DPI">DPI</option>
+                    <option value="Nombre">Nombre</option>
+                    <option value="Licencia" selected>Licencia</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="Ingrese licencia">
+                <button onclick="search()">Consultar Conductor</button>
+            </div>
+            <div class="result-box" id="result">
+                <!-- Aquí se mostrarán los resultados de la consulta -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updatePlaceholder() {
+            let searchType = document.getElementById("searchType").value;
+            let inputField = document.getElementById("searchInput");
+            
+            if (searchType === "DPI") {
+                inputField.placeholder = "Ingrese DPI";
+            } else if (searchType === "Nombre") {
+                inputField.placeholder = "Ingrese Nombre";
+            } else if (searchType === "Licencia") {
+                inputField.placeholder = "Ingrese Licencia";
+            }
+        }
+
+        function search() {
+            let searchType = document.getElementById("searchType").value;
+            let inputValue = document.getElementById("searchInput").value;
+            let resultBox = document.getElementById("result");
+            
+            if (inputValue.trim() === "") {
+                resultBox.innerHTML = "<p style='color: red;'>Por favor ingrese un valor válido.</p>";
+                return;
+            }
+            
+            resultBox.innerHTML = `<p>Buscando ${searchType}: <strong>${inputValue}</strong></p>`;
+        }
+    </script>
+</body>
+</html>
