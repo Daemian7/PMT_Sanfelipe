@@ -103,6 +103,36 @@ document.getElementById("submit-button").addEventListener("click", async functio
         alert("Boleta registrada correctamente.");
         console.log("Registro exitoso:", result2);
 
+        // **Tercera API: Insertar el total**
+        const total = document.getElementById("total").value;
+
+        // Validar que el total no esté vacío
+        if (!total || isNaN(total) || Number(total) <= 0) {
+            alert("Por favor, ingrese un valor válido para el total.");
+            return;
+        }
+
+        // Crear objeto con los datos de la tercera API
+        const formData3 = { total };
+
+        // Enviar tercera API
+        const response3 = await fetch("http://127.0.0.1:3000/api/multa/insert", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData3)
+        });
+
+        const result3 = await response3.json();
+
+        if (!response3.ok) {
+            throw new Error(result3.error || "Error al insertar la multa.");
+        }
+
+        alert("Multa insertada correctamente.");
+        console.log("Multa insertada:", result3);
+
     } catch (error) {
         console.error("Error en la solicitud:", error);
         alert("Hubo un problema al registrar la multa.");
