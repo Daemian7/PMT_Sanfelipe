@@ -1,110 +1,166 @@
-document.getElementById("submit-button").addEventListener("click", async function (event) {
-    event.preventDefault(); // Evita el comportamiento por defecto del botón
+document.addEventListener("DOMContentLoaded", () => {
+    const selectArticulo = document.getElementById("articulo");
+    const addArticuloBtn = document.getElementById("addarticulo");
+    const articulosAddDiv = document.querySelector(".articulosadd");
+    const totalInput = document.getElementById("total");
+    const boletaForm = document.getElementById("boletaForm");
 
-    // Capturar datos del primer formulario (boleta-vehiculo)
-    const no_boleta = document.getElementById("no_boleta").value;
-    const tipo_placa = document.getElementById("tipo-placa").value;
-    const placa_cod = document.getElementById("placa").value;
-    const id_vehiculo = document.getElementById("tipo-vehiculo").value;
-    const nit_prop = document.getElementById("propietario").value;
-    const tarjeta_circ = document.getElementById("tarjeta").value;
-    const marca = document.getElementById("marca").value;
-    const color = document.getElementById("color").value;
-    const tipo_licencia = document.getElementById("tipo-licencia").value;
-    const no_licencia = document.getElementById("licencia").value;
-    const no_doc_licencia = document.getElementById("doclicencia").value;
-    const dpi = document.getElementById("dpi").value;
-    const extendida = document.getElementById("lugar_ext").value;
+    let total = 0;
+    let articulosSeleccionados = [];
 
-    // Unir nombres y apellidos en un solo campo
-    const primer_nombre = document.getElementById("primer-nombre").value;
-    const segundo_nombre = document.getElementById("segundo-nombre").value;
-    const primer_apellido = document.getElementById("primer-apellido").value;
-    const segundo_apellido = document.getElementById("segundo-apellido").value;
-    const nombre = `${primer_nombre} ${segundo_nombre} ${primer_apellido} ${segundo_apellido}`.trim();
+    const cargarArticulos = async () => {
+        try {
+            const response = await fetch("http://127.0.0.1:3000/api/articulos");
 
-    // Crear objeto con los datos de la primera API
-    const formData1 = {
-        tipo_placa,
-        placa_cod,
-        id_vehiculo,
-        nit_prop,
-        tarjeta_circ,
-        marca,
-        color,
-        tipo_licencia,
-        no_licencia,
-        no_doc_licencia,
-        dpi,
-        extendida,
-        nombre,
-        no_boleta
+            if (!response.ok) {
+                throw new Error(`Error al obtener los artículos: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            data.forEach((item) => {
+                const option = document.createElement("option");
+                option.value = item.id_artic;
+                option.textContent = `${item.numero_artic} - ${item.detalle}`;
+                option.dataset.precio = item.precio;
+                selectArticulo.appendChild(option);
+            });
+        } catch (error) {
+            console.error("Error al cargar los artículos:", error);
+        }
     };
 
-    try {
-        // Enviar primera API
-        const response1 = await fetch("http://127.0.0.1:3000/api/boleta-vehiculo", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData1)
-        });
+    const actualizarTotal = () => {
+        totalInput.value = total.toFixed(2);
+    };
 
-        const result1 = await response1.json();
+    addArticuloBtn.addEventListener("click", (event) => {
+        event.preventDefault();
 
-        if (!response1.ok) {
-            throw new Error(result1.message || "Error al registrar boleta de vehículo.");
+        const selectedOption = selectArticulo.options[selectArticulo.selectedIndex];
+
+        if (selectedOption.value) {
+            const articuloDiv = document.createElement("div");
+            articuloDiv.classList.add("articulo-item");
+            articuloDiv.dataset.id = selectedOption.value;
+
+            const precio = parseFloat(selectedOption.dataset.precio);
+
+            articuloDiv.innerHTML = `
+                <span>${selectedOption.textContent} - Q${precio.toFixed(2)}</span>
+                <button class="remove-btn">X</button>
+            `;
+
+            articuloDiv.querySelector(".remove-btn").addEventListener("click", () => {
+                total -= precio;
+                articulosSeleccionados = articulosSeleccionados.filter(id => id !== selectedOption.value);
+                articuloDiv.remove();
+                actualizarTotal();
+            });
+
+            total += precio;
+
+            articulosAddDiv.appendChild(articuloDiv);
+            articulosSeleccionados.push(selectedOption.value);
+            actualizarTotal();
         }
+    });
 
-        alert("Boleta de vehículo insertada correctamente.");
+    cargarArticulos();
 
-        // **Si la primera API fue exitosa, proceder con la segunda API**
-        const ubicacion = document.getElementById("lugar_infrac").value;
-        const fecha = document.getElementById("fecha").value;
-        const hora = document.getElementById("hora").value;
-        const id_usuario = document.getElementById("agente").value;
-        const observaciones = document.getElementById("observaciones").value;
-        const id_firma = document.getElementById("firma").value;
-        const id_infrac = document.getElementById("infraccion").value;
+    // **Modificar el código de envío para incluir todos los pasos previos**
+    document.getElementById("submit-button").addEventListener("click", async function (event) {
+        event.preventDefault();
 
-        // Validar que no haya campos vacíos antes de enviar la segunda API
-        if (!ubicacion || !fecha || !hora || !id_usuario || !id_firma || !id_infrac) {
-            alert("Por favor, complete todos los campos de la segunda parte.");
-            return;
+        try {
+            // **(1) Enviar Boleta Vehículo**
+            const response1 = await fetch("http://127.0.0.1:3000/api/boleta-vehiculo", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    tipo_placa: document.getElementById("tipo-placa").value,
+                    placa_cod: document.getElementById("placa").value,
+                    id_vehiculo: document.getElementById("tipo-vehiculo").value,
+                    nit_prop: document.getElementById("propietario").value,
+                    tarjeta_circ: document.getElementById("tarjeta").value,
+                    marca: document.getElementById("marca").value,
+                    color: document.getElementById("color").value,
+                    tipo_licencia: document.getElementById("tipo-licencia").value,
+                    no_licencia: document.getElementById("licencia").value,
+                    no_doc_licencia: document.getElementById("doclicencia").value,
+                    dpi: document.getElementById("dpi").value,
+                    extendida: document.getElementById("lugar_ext").value,
+                    nombre: `${document.getElementById("primer-nombre").value} ${document.getElementById("segundo-nombre").value} ${document.getElementById("primer-apellido").value} ${document.getElementById("segundo-apellido").value}`.trim(),
+                    no_boleta: document.getElementById("no_boleta").value
+                })
+            });
+
+            if (!response1.ok) throw new Error("Error al registrar boleta de vehículo.");
+
+            // **(2) Enviar Boleta**
+            const response2 = await fetch("http://127.0.0.1:3000/api/boletas", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ubicacion: document.getElementById("lugar_infrac").value,
+                    fecha: document.getElementById("fecha").value,
+                    hora: document.getElementById("hora").value,
+                    id_usuario: document.getElementById("agente").value,
+                    observaciones: document.getElementById("observaciones").value,
+                    id_firma: document.getElementById("firma").value,
+                    id_infrac: document.getElementById("infraccion").value
+                })
+            });
+
+            if (!response2.ok) throw new Error("Error al registrar la boleta.");
+
+            // **(3) Enviar Multa**
+            const total = parseFloat(totalInput.value);
+            if (!total || isNaN(total) || total <= 0) throw new Error("Total inválido.");
+
+            const response3 = await fetch("http://127.0.0.1:3000/api/multa/insert", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ total })
+            });
+
+            if (!response3.ok) throw new Error("Error al insertar la multa.");
+
+            // **(4) Enviar detalles de multa**
+            for (const id_articulo of articulosSeleccionados) {
+                const responseDetalle = await fetch("http://127.0.0.1:3000/api/detalles/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id_articulo })
+                });
+
+                if (!responseDetalle.ok) throw new Error(`Error al insertar detalle para artículo ${id_articulo}.`);
+            }
+
+            alert("Multa y detalles insertados correctamente.");
+
+            // **(5) Después de todo el proceso, ejecutar sp_InsertBoletaFinal**
+            const fechaVencimiento = document.getElementById("fechainfo").value;
+
+            if (!fechaVencimiento) {
+                alert("Por favor, selecciona una fecha de vencimiento.");
+                return;
+            }
+
+            const responseFinal = await fetch("http://127.0.0.1:3000/api/final", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ vencimiento: fechaVencimiento })
+            });
+
+            if (!responseFinal.ok) throw new Error("Error al insertar la boleta final.");
+
+            const dataFinal = await responseFinal.json();
+            alert(dataFinal.message);
+
+        } catch (error) {
+            console.error("Error en la solicitud:", error);
+            alert(`Hubo un problema: ${error.message}`);
         }
-
-        // Crear objeto con los datos de la segunda API
-        const formData2 = {
-            ubicacion,
-            fecha,
-            hora,
-            id_usuario,
-            observaciones,
-            id_firma,
-            id_infrac
-        };
-
-        // Enviar segunda API
-        const response2 = await fetch("http://127.0.0.1:3000/api/boletas", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(formData2)
-        });
-
-        const result2 = await response2.json();
-
-        if (!response2.ok) {
-            throw new Error(result2.error || "Error al registrar la boleta.");
-        }
-
-        alert("Boleta registrada correctamente.");
-        console.log("Registro exitoso:", result2);
-
-    } catch (error) {
-        console.error("Error en la solicitud:", error);
-        alert("Hubo un problema al registrar la multa.");
-    }
+    });
 });

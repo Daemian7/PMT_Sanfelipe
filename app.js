@@ -20,6 +20,7 @@ const boletasRoutes = require("./src/routes/boletas");
 const boletasFinalRoutes = require("./src/routes/boletasFinal");
 const multasRoutes = require('./src/routes/multasRoutes');
 
+
 const app = express();
 const port = 3000;
 
@@ -67,7 +68,7 @@ app.use("/api/boleta-vehiculo", boletaVehiculoRoutes);
 app.use("/api/multa", multaRoutes);
 app.use("/api/multa-detalle", multaDetalleRoutes);
 app.use("/api/boletas", boletasRoutes);
-app.use("/api/boletas-finales", boletasFinalRoutes);
+app.use("/api/final", boletasFinalRoutes);
 app.use("/api/detalles",multasRoutes);
 
 // Ruta principal (endpoint raíz "/")

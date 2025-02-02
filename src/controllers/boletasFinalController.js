@@ -1,55 +1,33 @@
 const db = require("../db/db");
 
-const getAllBoletasFinales = (req, res) => {
-    const query = "EXEC sp_ObtenerBoletasFinales";
+const insertBoletaFinal = async (req, res) => {
+    try {
+        const { vencimiento } = req.body;
+
+        if (!vencimiento) {
+            return res.status(400).json({ message: "La fecha de vencimiento es obligatoria" });
+        }
+
+        const query = "EXEC sp_InsertBoletaFinal @Vencimiento = ?";
+        await db.query(query, [vencimiento]);
+
+        res.status(201).json({ message: "Boleta final insertada correctamente" });
+    } catch (error) {
+        res.status(500).json({ message: "Error al insertar la boleta final", error: error.message });
+    }
+};
+
+const getBoletas = (req, res) => {
+    const query = "EXEC sp_GetBoletas"; // Llamada al procedimiento almacenado
+
     db.query(query, [], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
+        if (err) {
+            console.error("Error ejecutando sp_GetBoletas:", err);
+            return res.status(500).json({ error: "Error interno del servidor" });
+        }
+
         res.json(rows);
     });
 };
 
-const getBoletaFinalById = (req, res) => {
-    const query = "EXEC sp_ObtenerBoletaFinalPorId @id_boletafin = ?";
-    db.query(query, [req.params.id], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json(rows[0]); // Devuelve solo un objeto
-    });
-};
-
-const createBoletaFinal = (req, res) => {
-    const { id_boleta, id_info_boleta, id_multa, estado, imagen } = req.body;
-    const query = `EXEC sp_InsertarBoletaFinal 
-                   @id_boleta = ?, 
-                   @id_info_boleta = ?, 
-                   @id_multa = ?, 
-                   @estado = ?, 
-                   @imagen = ?`;
-
-    db.query(query, [id_boleta, id_info_boleta, id_multa, estado, imagen], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.status(201).json({ message: "Boleta final creada", id_boletafin: rows[0]?.id_boletafin });
-    });
-};
-
-const updateBoletaFinal = (req, res) => {
-    const { id_boleta, id_info_boleta, id_multa, estado, imagen } = req.body;
-    const query = `EXEC sp_ActualizarBoletaFinal 
-                   @id_boletafin = ?, 
-                   @id_boleta = ?, 
-                   @id_info_boleta = ?, 
-                   @id_multa = ?, 
-                   @estado = ?, 
-                   @imagen = ?`;
-
-    db.query(query, [req.params.id, id_boleta, id_info_boleta, id_multa, estado, imagen], (err, rows) => {
-        if (err) return res.status(500).json({ error: err.message });
-        res.json({ message: "Boleta final actualizada correctamente" });
-    });
-};
-
-module.exports = {
-    getAllBoletasFinales,
-    getBoletaFinalById,
-    createBoletaFinal,
-    updateBoletaFinal,
-};
+module.exports = { insertBoletaFinal, getBoletas };

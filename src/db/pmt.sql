@@ -1,4 +1,4 @@
-create database pmt_sanfe
+ create database pmt_sanfe
 use pmt_sanfe
 
 CREATE TABLE Usuarios (

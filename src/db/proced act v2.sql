@@ -226,4 +226,85 @@ END;
 EXEC sp_AddMulta @total = 200
 
 
-select * from multa
+select * from info_boleta
+
+
+DECLARE @UlmID INT;
+
+-- Obtener el último ID registrado en la tabla
+SELECT @UlmID = MAX(id_info) FROM info_boleta;
+
+-- Mostrarlo en pantalla
+PRINT 'El último ID registrado es: ' + CAST(@UlmID AS VARCHAR);
+SELECT @UlmID AS UltimoID;
+
+
+select * from estados
+
+
+
+CREATE PROCEDURE sp_InsertBoletaFinal
+    @Vencimiento DATE -- Agregar parámetro de fecha de vencimiento
+AS
+BEGIN
+    DECLARE @UltimoIDBoleta INT;
+    DECLARE @UltimoIDInfoBoleta INT;
+    DECLARE @UltimoIDMulta INT;
+    DECLARE @Estado INT = 1;
+
+    -- Obtener el último ID registrado en cada tabla
+    SELECT @UltimoIDBoleta = MAX(id_boleta) FROM boleta_vehiculo;
+    SELECT @UltimoIDInfoBoleta = MAX(id_info) FROM info_boleta;
+    SELECT @UltimoIDMulta = MAX(id_multa) FROM multa;
+    
+    -- Insertar en la tabla boleta_final con la fecha de vencimiento proporcionada
+    INSERT INTO boleta_final (id_boleta, id_info_boleta, id_multa, estado, vencimiento)
+    VALUES (@UltimoIDBoleta, @UltimoIDInfoBoleta, @UltimoIDMulta, @Estado, @Vencimiento);
+END;
+
+EXEC sp_InsertBoletaFinal @Vencimiento = '2025-03-01';
+
+
+select * from boleta_final
+
+
+SELECT 
+BV.no_boleta, p.placa_inicial, BV.placa_cod, v.nombre, BV.nit_prop, bv.tarjeta_circ, bv.marca, bv.color,bv.no_licencia, bv.no_doc_licencia,
+bv.dpi, e.ubicacion, bv.nombre, es.estado
+FROM boleta_vehiculo BV
+INNER JOIN placa p ON p.id_placa = BV.tipo_placa
+inner join vehiculos v on v.id_vehiculo = BV.id_vehiculo
+inner join extendida e on e.id_exten = BV.extendida
+inner join boleta_final bf on bf.id_boleta = BV.id_boleta
+inner join estados es on es.id_estado = bf.estado
+
+
+CREATE PROCEDURE sp_GetBoletas
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        BV.no_boleta, 
+        p.placa_inicial, 
+        BV.placa_cod, 
+        v.nombre, 
+        BV.nit_prop, 
+        BV.tarjeta_circ, 
+        BV.marca, 
+        BV.color, 
+        BV.no_licencia, 
+        BV.no_doc_licencia,
+        BV.dpi, 
+        e.ubicacion, 
+        BV.nombre, 
+        es.estado
+    FROM boleta_vehiculo BV
+    INNER JOIN placa p ON p.id_placa = BV.tipo_placa
+    INNER JOIN vehiculos v ON v.id_vehiculo = BV.id_vehiculo
+    INNER JOIN extendida e ON e.id_exten = BV.extendida
+    INNER JOIN boleta_final bf ON bf.id_boleta = BV.id_boleta
+    INNER JOIN estados es ON es.id_estado = bf.estado;
+END;
+
+EXEC sp_GetBoletas;
