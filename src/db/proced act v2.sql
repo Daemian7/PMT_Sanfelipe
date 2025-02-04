@@ -267,9 +267,12 @@ EXEC sp_InsertBoletaFinal @Vencimiento = '2025-03-01';
 
 select * from boleta_final
 
+select * from boleta_vehiculo
+
+select * from licencia
 
 SELECT 
-BV.no_boleta, p.placa_inicial, BV.placa_cod, v.nombre, BV.nit_prop, bv.tarjeta_circ, bv.marca, bv.color,bv.no_licencia, bv.no_doc_licencia,
+BV.no_boleta, p.placa_inicial, BV.placa_cod, v.nombre, BV.nit_prop, bv.tarjeta_circ, bv.marca, bv.color, l.tipo_licen, bv.no_licencia, bv.no_doc_licencia,
 bv.dpi, e.ubicacion, bv.nombre, es.estado
 FROM boleta_vehiculo BV
 INNER JOIN placa p ON p.id_placa = BV.tipo_placa
@@ -277,9 +280,10 @@ inner join vehiculos v on v.id_vehiculo = BV.id_vehiculo
 inner join extendida e on e.id_exten = BV.extendida
 inner join boleta_final bf on bf.id_boleta = BV.id_boleta
 inner join estados es on es.id_estado = bf.estado
+inner join licencia l on l.id_licen = BV.tipo_licencia
 
 
-CREATE PROCEDURE sp_GetBoletas
+drop PROCEDURE sp_GetBoletas
 AS
 BEGIN
     SET NOCOUNT ON;
@@ -308,3 +312,112 @@ BEGIN
 END;
 
 EXEC sp_GetBoletas;
+
+
+
+create PROCEDURE sp_GetBoletas
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT 
+        BV.no_boleta, 
+        p.placa_inicial, 
+        BV.placa_cod, 
+        v.nombre AS tipo_vehiculo, 
+        BV.nit_prop, 
+        BV.tarjeta_circ, 
+        BV.marca, 
+        BV.color, 
+        l.tipo_licen, 
+        BV.no_licencia, 
+        BV.no_doc_licencia,
+        BV.dpi, 
+        e.ubicacion, 
+        BV.nombre , 
+        es.estado,
+	
+    FROM boleta_vehiculo BV
+    INNER JOIN placa p ON p.id_placa = BV.tipo_placa
+    INNER JOIN vehiculos v ON v.id_vehiculo = BV.id_vehiculo
+    INNER JOIN extendida e ON e.id_exten = BV.extendida
+    INNER JOIN boleta_final bf ON bf.id_boleta = BV.id_boleta
+    INNER JOIN estados es ON es.id_estado = bf.estado
+    INNER JOIN licencia l ON l.id_licen = BV.tipo_licencia;
+
+END;
+
+UPDATE boleta_final SET estado = SELECT id_estado FROM estados WHERE estado = 1  WHERE id_boleta = 23
+
+UPDATE boleta_final
+SET estado = 2
+WHERE id_boleta = 23;
+
+select * from boleta_final
+
+select * from estados
+
+SELECT 
+    BV.no_boleta, 
+    p.placa_inicial, 
+    BV.placa_cod, 
+    v.nombre AS tipo_vehiculo, 
+    BV.nit_prop, 
+    BV.tarjeta_circ, 
+    BV.marca, 
+    BV.color, 
+    l.tipo_licen, 
+    BV.no_licencia, 
+    BV.no_doc_licencia,
+    BV.dpi, 
+    e.ubicacion, 
+    BV.nombre, 
+    es.estado
+FROM boleta_vehiculo BV
+INNER JOIN placa p ON p.id_placa = BV.tipo_placa
+INNER JOIN vehiculos v ON v.id_vehiculo = BV.id_vehiculo
+INNER JOIN extendida e ON e.id_exten = BV.extendida
+INNER JOIN boleta_final bf ON bf.id_boleta = BV.id_boleta
+INNER JOIN estados es ON es.id_estado = bf.estado
+INNER JOIN licencia l ON l.id_licen = BV.tipo_licencia
+WHERE p.id_placa = 1 
+AND BV.placa_cod = '123ABC'
+and es.id_estado = 1;
+
+
+
+SELECT 
+    BV.no_boleta, 
+    p.placa_inicial, 
+    BV.placa_cod, 
+    v.nombre AS tipo_vehiculo, 
+    BV.nit_prop, 
+    BV.tarjeta_circ, 
+    BV.marca, 
+    BV.color, 
+    l.tipo_licen, 
+    BV.no_licencia, 
+    BV.no_doc_licencia,
+    BV.dpi, 
+    e.ubicacion, 
+    BV.nombre, 
+    es.estado,
+	m.total, -- Sumar el total de multas
+    ib.fecha -- Obtener la fecha más reciente
+FROM boleta_vehiculo BV
+INNER JOIN placa p ON p.id_placa = BV.tipo_placa
+INNER JOIN vehiculos v ON v.id_vehiculo = BV.id_vehiculo
+INNER JOIN extendida e ON e.id_exten = BV.extendida
+INNER JOIN boleta_final bf ON bf.id_boleta = BV.id_boleta
+INNER JOIN estados es ON es.id_estado = bf.estado
+INNER JOIN licencia l ON l.id_licen = BV.tipo_licencia
+INNER JOIN multa m ON m.id_boleta = BV.id_boleta
+INNER JOIN info_boleta ib ON ib.id_boleta = BV.id_boleta
+WHERE p.id_placa = 1 
+AND BV.placa_cod = '123ABC'
+AND es.id_estado = 1
+GROUP BY 
+    BV.no_boleta, p.placa_inicial, BV.placa_cod, v.nombre, 
+    BV.nit_prop, BV.tarjeta_circ, BV.marca, BV.color, 
+    l.tipo_licen, BV.no_licencia, BV.no_doc_licencia, BV.dpi, 
+    e.ubicacion, BV.nombre, es.estado;

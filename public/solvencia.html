@@ -26,14 +26,14 @@
             <li><a href="/boleta">Ingreso de Boleta</a></li>
             <li><a href="/registros">Ver Boletas</a></li>            
             <li><a href="/solvencia">Solvencias</a></li>
-            <li><a href="#">Configuración</a></li>
+            <li><a href="/api/traslado/generarPDF" target="_blank">Traslados</a></li>
           </ul>
         </nav>
       </aside>
 
     <div class="content">
         <div class="container">
-            <h2>Consulta de Infracciones</h2>
+            <h2>Consulta de Solvencias</h2>
             <br>
             <div class="form-group">
                 <h4>Consulta por Tipo de Placa</h4>
@@ -41,7 +41,10 @@
                 <select id="placa">
                     <option value="1">Seleccione una opcion</option>
                 </select>
+                <input type="text" id="txtplaca" placeholder="Ingrese placa">
+
                 <button id="btn_placa">Consultar placa</button>
+                <button id="btn_pdf" disabled>Generar PDF</button>
             </div>
             <div class="form-group">
                 <h4>Búsqueda de Infractores</h4>
@@ -53,9 +56,12 @@
                 </select>
                 <input type="text" id="searchInput" placeholder="Ingrese licencia">
                 <button onclick="search()">Consultar Conductor</button>
+
             </div>
             <div class="result-box" id="result">
                 <!-- Aquí se mostrarán los resultados de la consulta -->
+                <p id="error-msg" style="color: red;"></p>
+
             </div>
         </div>
     </div>
@@ -87,5 +93,7 @@
             resultBox.innerHTML = `<p>Buscando ${searchType}: <strong>${inputValue}</strong></p>`;
         }
     </script>
+    <script src="js/placa_solic.js"></script>
+    <script src="js/buscar_solic.js"></script>
 </body>
 </html>

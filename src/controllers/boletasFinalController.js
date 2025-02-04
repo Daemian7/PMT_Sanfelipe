@@ -30,4 +30,28 @@ const getBoletas = (req, res) => {
     });
 };
 
-module.exports = { insertBoletaFinal, getBoletas };
+const updateBoletaEstado = async (req, res) => {
+    const { id_boleta } = req.params;
+    const { estado } = req.body;
+
+    console.log("ID Boleta:", id_boleta);  // Verifica el ID de boleta
+    console.log("Estado recibido:", estado);  // Verifica el estado recibido
+
+    if (!id_boleta || estado === undefined) {
+        return res.status(400).json({ error: "ID de boleta y estado son requeridos" });
+    }
+
+    const query = "UPDATE boleta_final SET estado = ? WHERE id_boleta = ?";
+
+    db.query(query, [estado, id_boleta], (err, result) => {
+        if (err) {
+            console.error("Error al actualizar estado:", err);
+            return res.status(500).json({ error: "Error interno del servidor" });
+        }
+
+        res.json({ message: "Estado actualizado correctamente", affectedRows: result.rowsAffected });
+    });
+};
+
+
+module.exports = { insertBoletaFinal, getBoletas, updateBoletaEstado };
