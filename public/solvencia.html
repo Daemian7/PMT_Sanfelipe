@@ -49,51 +49,28 @@
             <div class="form-group">
                 <h4>Búsqueda de Infractores</h4>
                 <br>
-                <select id="searchType" onchange="updatePlaceholder()">
+                <select id="searchType">
                     <option value="DPI">DPI</option>
                     <option value="Nombre">Nombre</option>
                     <option value="Licencia" selected>Licencia</option>
                 </select>
                 <input type="text" id="searchInput" placeholder="Ingrese licencia">
-                <button onclick="search()">Consultar Conductor</button>
+                <button id="btn_conductor">Consultar Conductor</button>
+                <button id="btn_pdf_con" disabled>Generar PDF</button>
 
             </div>
             <div class="result-box" id="result">
-                <!-- Aquí se mostrarán los resultados de la consulta -->
-                <p id="error-msg" style="color: red;"></p>
-
+                <p id="error-msg" style="color: red;"></p> <!-- 👈 Asegúrate de que esto esté en el HTML -->
+            </div>
+            
+            
             </div>
         </div>
     </div>
 
-    <script>
-        function updatePlaceholder() {
-            let searchType = document.getElementById("searchType").value;
-            let inputField = document.getElementById("searchInput");
-            
-            if (searchType === "DPI") {
-                inputField.placeholder = "Ingrese DPI";
-            } else if (searchType === "Nombre") {
-                inputField.placeholder = "Ingrese Nombre";
-            } else if (searchType === "Licencia") {
-                inputField.placeholder = "Ingrese Licencia";
-            }
-        }
-
-        function search() {
-            let searchType = document.getElementById("searchType").value;
-            let inputValue = document.getElementById("searchInput").value;
-            let resultBox = document.getElementById("result");
-            
-            if (inputValue.trim() === "") {
-                resultBox.innerHTML = "<p style='color: red;'>Por favor ingrese un valor válido.</p>";
-                return;
-            }
-            
-            resultBox.innerHTML = `<p>Buscando ${searchType}: <strong>${inputValue}</strong></p>`;
-        }
-    </script>
+   
     <script src="js/placa_solic.js"></script>
     <script src="js/buscar_solic.js"></script>
+    <script src="js/conductor.js" defer></script>
 </body>
 </html>

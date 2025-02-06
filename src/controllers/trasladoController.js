@@ -79,6 +79,10 @@ exports.generarPDF = (req, res) => {
             "Treinta días después de impuesta la multa sin que la misma se haya cancelado, la autoridad de tránsito solicitará el traslado del vehículo infractor al depósito correspondiente.",
             50, doc.y, { align: "left", width: 500 } // Texto normal sin subrayado
         )
+        .text(
+            "Multas Pendientes",
+            50, doc.y, { align: "left", width: 500 } // Texto normal sin subrayado
+        )
         .moveDown(2);
 
     // Tabla de multas    

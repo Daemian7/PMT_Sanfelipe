@@ -21,6 +21,8 @@ const boletasFinalRoutes = require("./src/routes/boletasFinal");
 const multasRoutes = require('./src/routes/multasRoutes');
 const buscarRoutes = require('./src/routes/buscarRoutes');
 const trasladoRoutes = require("./src/routes/trasladoRoutes");
+const conductorRoutes = require("./src/routes/conductorRoutes");
+
 
 
 
@@ -75,6 +77,8 @@ app.use("/api/final", boletasFinalRoutes);
 app.use("/api/detalles",multasRoutes);
 app.use("/api/buscar", buscarRoutes);
 app.use("/api/traslado", trasladoRoutes);
+app.use("/api/conductor", conductorRoutes);
+
 
 // Ruta principal (endpoint raíz "/")
 app.get("/", (req, res) => {

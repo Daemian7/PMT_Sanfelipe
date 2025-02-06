@@ -111,16 +111,19 @@ function generarPDFconDatos(res, rows, placaCod, placaNombre) {
         .moveDown(2);
 
     // Fecha actual
-    const fechaActual = new Date().toLocaleDateString();
-
-    // 🔹 **Siempre mostrar el tipo de placa ingresado correctamente**
-    doc
-        .fontSize(11)
-        .text(
-            `El juzgado de Asuntos Municipales de Tránsito del Municipio de San Felipe Retalhuleu hace constar que, de acuerdo con los registros correspondientes, el vehículo identificado con el número de placas de circulación ${placaCod} tipo ${placaNombre} al ${fechaActual}.`,
-            { align: "justify" }
-        )
-        .moveDown(2);
+      // Obtener fecha actual en formato deseado
+      const fechaActual = new Date();
+      const opciones = { day: 'numeric', month: 'long', year: 'numeric' };
+      const fechaFormateada = fechaActual.toLocaleDateString('es-ES', opciones);
+  
+      // Aplicarlo en el texto del PDF
+      doc
+          .fontSize(11)
+          .text(
+              `El juzgado de Asuntos Municipales de Tránsito del Municipio de San Felipe Retalhuleu hace constar que, de acuerdo con los registros correspondientes, el vehículo identificado con el número de placas de circulación ${placaCod.toUpperCase()} TIPO ${placaNombre.toUpperCase()} al ${fechaFormateada}.`,
+              { align: "justify" }
+          )
+          .moveDown(2);
 
     // Sección de multas
     if (rows.length === 0) {
@@ -128,7 +131,26 @@ function generarPDFconDatos(res, rows, placaCod, placaNombre) {
             .fontSize(11)
             .text("No tiene multas pendientes de pago en materia de tránsito, en base sobre la cual se le extiende la presente,", { align: "center" })
             .moveDown(2);
+
+        // 🔹 **Mostrar "SOLVENCIA DE TRÁNSITO" solo si NO hay multas**
+        doc
+            .fontSize(12)
+            .text("SOLVENCIA DE TRÁNSITO", { align: "center" })
+            .moveDown(0.2);
+
+        // Dibujar subrayado
+        const textWidth = doc.widthOfString("SOLVENCIA DE TRÁNSITO");
+        const textX = (doc.page.width - textWidth) / 2;
+        const textY = doc.y;
+
+        doc
+            .moveTo(textX, textY)
+            .lineTo(textX + textWidth, textY)
+            .stroke();
+
+        doc.moveDown(1);
     } else {
+        // 🔹 Si hay multas, listarlas
         doc.fontSize(11).text("El vehículo tiene registradas las siguientes multas:", { align: "left" }).moveDown();
 
         rows.forEach((row, index) => {
@@ -141,42 +163,26 @@ function generarPDFconDatos(res, rows, placaCod, placaNombre) {
                 .text(`• Estado: ${row.estado}`)
                 .moveDown();
         });
+
+        // 🔹 **NO mostrar "SOLVENCIA DE TRÁNSITO" ni su línea ni "Valor Q. 25.00" cuando hay multas**
     }
 
-    // 🔹 **Incluir la placa ingresada aunque no haya datos en la BD**
+    // 🔹 **Mantener el resto del contenido SIEMPRE**
     doc
-        .fontSize(11)
-        .text(`Placa Ingresada: ${placaCod}`, { align: "left" })
-        .text(`Tipo de Placa Seleccionada: ${placaNombre}`, { align: "left" })
-        .moveDown(2);
-
-    // Pie de página
-    doc
-        .fontSize(12)
-        .text("SOLVENCIA DE TRÁNSITO", { align: "center" })
-        .moveDown(0.2);
-
-    // Dibujar subrayado
-    const textWidth = doc.widthOfString("SOLVENCIA DE TRÁNSITO");
-    const textX = (doc.page.width - textWidth) / 2;
-    const textY = doc.y;
-
-    doc
-        .moveTo(textX, textY)
-        .lineTo(textX + textWidth, textY)
-        .stroke();
+    .fontSize(11)
+    .text(`San Felipe, ${fechaFormateada}`, { align: "right" })
+    .moveDown(1);
 
     doc
         .fontSize(11)
-        .text(`San Felipe, ${fechaActual}`, { align: "right" })
-        .moveDown(1);
+        .text("Verificó: __________________", { align: "left" });
 
-    doc
-        .fontSize(11)
-        .text("Verificó: __________________", { align: "left" })
-        .text("Valor Q. 25.00", { align: "right" })
-        .moveDown(2);
+    if (rows.length === 0) {
+        // 🔹 **Mostrar "Valor Q. 25.00" solo si NO hay multas**
+        doc.text("Valor Q. 25.00", { align: "right" });
+    }
 
+    doc.moveDown(2);
     doc.text("Firma y Sello", { align: "right" });
 
     // Finalizar y enviar PDF
