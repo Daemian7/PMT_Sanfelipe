@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     <td>${boleta.dpi}</td>
                     <td>${boleta.ubicacion}</td>
                     <td>${boleta.nombre}</td>
+                    <td>${boleta.total_precio}</td>
                     <td class="estado">${boleta.estado}</td>
                     <td>
                         <button class="btn btn-primary btn-sm editar-btn" 

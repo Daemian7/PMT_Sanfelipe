@@ -60,19 +60,19 @@ document.getElementById("btn_conductor").addEventListener("click", async () => {
         table.border = "1";
 
         const headerRow = table.insertRow();
-        ["No. Boleta", "Placa", "Tipo Vehículo", "Nombre", "Estado"].forEach(headerText => {
-            const headerCell = headerRow.insertCell();
-            headerCell.textContent = headerText;
-            headerCell.style.fontWeight = "bold";
-        });
+["No. Boleta", "Placa", "Tipo Vehículo", "Nombre", "Estado", "DPI", "Total Q"].forEach(headerText => {
+    const headerCell = headerRow.insertCell();
+    headerCell.textContent = headerText;
+    headerCell.style.fontWeight = "bold";
+});
 
-        data.forEach(boleta => {
-            const row = table.insertRow();
-            ["no_boleta", "placa_cod", "tipo_vehiculo", "nombre", "estado"].forEach(key => {
-                const cell = row.insertCell();
-                cell.textContent = boleta[key];
-            });
-        });
+data.forEach(boleta => {
+    const row = table.insertRow();
+    ["no_boleta", "placa_cod", "tipo_vehiculo", "nombre", "estado", "dpi", "total_precio"].forEach(key => {
+        const cell = row.insertCell();
+        cell.textContent = key === "total_precio" ? `Q${boleta[key].toFixed(2)}` : boleta[key]; // Formatear el total con "Q" y dos decimales
+    });
+});
 
         resultDiv.appendChild(table);
         btnPdf.disabled = false; // 🔹 Siempre permitir la generación del PDF

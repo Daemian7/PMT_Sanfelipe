@@ -8,8 +8,6 @@ const buscarBoletas = async (req, res) => {
     // Obtener los parámetros desde query (req.query)
     const { tipo, valor } = req.query;
 
-    // console.log("Datos recibidos:", { tipo, valor });
-
     // Verificar si los parámetros están presentes
     if (!tipo || !valor) {
         return res.status(400).json({ error: "Faltan parámetros de búsqueda" });
@@ -31,7 +29,8 @@ const buscarBoletas = async (req, res) => {
             BV.dpi, 
             e.ubicacion, 
             BV.nombre, 
-            es.estado
+            es.estado,
+            SUM(a.precio) AS total_precio
         FROM boleta_vehiculo BV
         INNER JOIN placa p ON p.id_placa = BV.tipo_placa
         INNER JOIN vehiculos v ON v.id_vehiculo = BV.id_vehiculo
@@ -39,6 +38,9 @@ const buscarBoletas = async (req, res) => {
         INNER JOIN boleta_final bf ON bf.id_boleta = BV.id_boleta
         INNER JOIN estados es ON es.id_estado = bf.estado
         INNER JOIN licencia l ON l.id_licen = BV.tipo_licencia
+        INNER JOIN multa m ON m.id_boleta = BV.id_boleta
+        INNER JOIN multa_detalle dm ON dm.id_multa = m.id_multa
+        INNER JOIN articulos a ON a.id_artic = dm.id_articulo
     `;
 
     // Dependiendo del tipo, agregamos la cláusula WHERE
@@ -52,8 +54,25 @@ const buscarBoletas = async (req, res) => {
         return res.status(400).json({ error: "Tipo de búsqueda no válido" });
     }
 
-    // console.log("Consulta SQL generada:", query);
-    // console.log("Parámetros:", [valor]);
+    // Añadir GROUP BY después de WHERE para realizar la agregación
+    query += `
+        GROUP BY 
+            BV.no_boleta, 
+            p.placa_inicial, 
+            BV.placa_cod, 
+            v.nombre, 
+            BV.nit_prop, 
+            BV.tarjeta_circ, 
+            BV.marca, 
+            BV.color, 
+            l.tipo_licen, 
+            BV.no_licencia, 
+            BV.no_doc_licencia, 
+            BV.dpi, 
+            e.ubicacion, 
+            BV.nombre, 
+            es.estado
+    `;
 
     // Ejecutar la consulta en la base de datos
     db.query(query, [valor], (err, rows) => {
@@ -70,7 +89,6 @@ const buscarBoletas = async (req, res) => {
         res.json(rows); // Devolver los resultados
     });
 };
-
 
 
 const generarPDF = async (req, res) => {
@@ -90,16 +108,34 @@ const generarPDF = async (req, res) => {
 
         let query = `
             SELECT 
-                BV.no_boleta, p.placa_inicial, BV.placa_cod, v.nombre AS tipo_vehiculo, 
-                BV.nit_prop, BV.tarjeta_circ, BV.marca, BV.color, l.tipo_licen, BV.no_licencia, 
-                BV.no_doc_licencia, BV.dpi, e.ubicacion, BV.nombre, es.estado
-            FROM boleta_vehiculo BV
-            INNER JOIN placa p ON p.id_placa = BV.tipo_placa
-            INNER JOIN vehiculos v ON v.id_vehiculo = BV.id_vehiculo
-            INNER JOIN extendida e ON e.id_exten = BV.extendida
-            INNER JOIN boleta_final bf ON bf.id_boleta = BV.id_boleta
-            INNER JOIN estados es ON es.id_estado = bf.estado
-            INNER JOIN licencia l ON l.id_licen = BV.tipo_licencia
+    BV.no_boleta, 
+    p.placa_inicial, 
+    BV.placa_cod, 
+    v.nombre AS tipo_vehiculo, 
+    BV.nit_prop, 
+    BV.tarjeta_circ, 
+    BV.marca, 
+    BV.color, 
+    l.tipo_licen, 
+    BV.no_licencia, 
+    BV.no_doc_licencia,
+    BV.dpi, 
+    e.ubicacion, 
+    BV.nombre, 
+    es.estado,
+    a.precio,
+	a.numero_artic,
+	a.detalle
+FROM boleta_vehiculo BV
+INNER JOIN placa p ON p.id_placa = BV.tipo_placa
+INNER JOIN vehiculos v ON v.id_vehiculo = BV.id_vehiculo
+INNER JOIN extendida e ON e.id_exten = BV.extendida
+INNER JOIN boleta_final bf ON bf.id_boleta = BV.id_boleta
+INNER JOIN estados es ON es.id_estado = bf.estado
+INNER JOIN licencia l ON l.id_licen = BV.tipo_licencia
+INNER JOIN multa m ON m.id_boleta = BV.id_boleta
+INNER JOIN multa_detalle dm ON dm.id_multa = m.id_multa
+INNER JOIN articulos a ON a.id_artic = dm.id_articulo
         `;
 
         let condition = "";
@@ -158,9 +194,11 @@ const generarPDF = async (req, res) => {
                 doc.font("Helvetica-Bold").text("SOLVENCIA DE TRANSITO", { align: "center", underline: true }).moveDown(1);
             } else {
                 // Si hay multas, listarlas
-                doc.font("Helvetica-Bold").text(" Cuenta con las siguientes multas registradas:", { underline: true }).moveDown(0.5);
+                doc.font("Helvetica-Bold").text("Cuenta con las siguientes multas registradas:", { underline: true }).moveDown(0.5);
+
                 rows.forEach(boleta => {
-                    doc.font("Helvetica").text(`No. Boleta: ${boleta.no_boleta} - Placa: ${boleta.placa_cod} - Tipo Vehículo: ${boleta.tipo_vehiculo} - Estado: ${boleta.estado}`).moveDown(0.5);
+                    doc.font("Helvetica").text(`No. Boleta: ${boleta.no_boleta} - Placa: ${boleta.placa_cod} - Tipo Vehículo: ${boleta.tipo_vehiculo} - Estado: ${boleta.estado}`).moveDown(0.3);
+                    doc.font("Helvetica").text(`Artículo No: ${boleta.numero_artic} - Detalle: ${boleta.detalle} - Monto: Q${boleta.precio.toFixed(2)}`).moveDown(0.5);
                 });
             }
 

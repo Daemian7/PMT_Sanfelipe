@@ -7,7 +7,7 @@ exports.buscarBoletas = async(req, res) => {
     const { tipoPlaca, placaCod } = req.body;
 
     const query = `
-        SELECT 
+ SELECT 
     BV.no_boleta, 
     p.placa_inicial, 
     BV.placa_cod, 
@@ -22,7 +22,8 @@ exports.buscarBoletas = async(req, res) => {
     BV.dpi, 
     e.ubicacion, 
     BV.nombre, 
-    es.estado
+    es.estado,
+    SUM(a.precio) AS total_precio -- SUMAMOS EL PRECIO DE LOS ARTÍCULOS POR BOLETA
 FROM boleta_vehiculo BV
 INNER JOIN placa p ON p.id_placa = BV.tipo_placa
 INNER JOIN vehiculos v ON v.id_vehiculo = BV.id_vehiculo
@@ -30,7 +31,30 @@ INNER JOIN extendida e ON e.id_exten = BV.extendida
 INNER JOIN boleta_final bf ON bf.id_boleta = BV.id_boleta
 INNER JOIN estados es ON es.id_estado = bf.estado
 INNER JOIN licencia l ON l.id_licen = BV.tipo_licencia
-        WHERE p.id_placa = ? AND BV.placa_cod = ? AND es.id_estado = 1;
+INNER JOIN multa m ON m.id_boleta = BV.id_boleta
+INNER JOIN multa_detalle dm ON dm.id_multa = m.id_multa
+INNER JOIN articulos a ON a.id_artic = dm.id_articulo
+WHERE 
+    p.id_placa = ? AND 
+    BV.placa_cod = ? AND 
+    es.id_estado = 1
+GROUP BY 
+    BV.no_boleta, 
+    p.placa_inicial, 
+    BV.placa_cod, 
+    v.nombre, 
+    BV.nit_prop, 
+    BV.tarjeta_circ, 
+    BV.marca, 
+    BV.color, 
+    l.tipo_licen, 
+    BV.no_licencia, 
+    BV.no_doc_licencia, 
+    BV.dpi, 
+    e.ubicacion, 
+    BV.nombre, 
+    es.estado;
+
     `;
 
     db.query(query, [tipoPlaca, placaCod], (err, rows) => {
@@ -48,16 +72,35 @@ exports.generarPDF = async (req, res) => {
     const { tipoPlaca, placaCod } = req.query;
 
     const query = `
-        SELECT BV.no_boleta, p.placa_inicial, BV.placa_cod, v.nombre AS tipo_vehiculo, 
-               BV.nit_prop, BV.tarjeta_circ, BV.marca, BV.color, l.tipo_licen, BV.no_licencia, 
-               BV.no_doc_licencia, BV.dpi, e.ubicacion, BV.nombre, es.estado
-        FROM boleta_vehiculo BV
-        INNER JOIN placa p ON p.id_placa = BV.tipo_placa
-        INNER JOIN vehiculos v ON v.id_vehiculo = BV.id_vehiculo
-        INNER JOIN extendida e ON e.id_exten = BV.extendida
-        INNER JOIN boleta_final bf ON bf.id_boleta = BV.id_boleta
-        INNER JOIN estados es ON es.id_estado = bf.estado
-        INNER JOIN licencia l ON l.id_licen = BV.tipo_licencia
+        	SELECT 
+    BV.no_boleta, 
+    p.placa_inicial, 
+    BV.placa_cod, 
+    v.nombre AS tipo_vehiculo, 
+    BV.nit_prop, 
+    BV.tarjeta_circ, 
+    BV.marca, 
+    BV.color, 
+    l.tipo_licen, 
+    BV.no_licencia, 
+    BV.no_doc_licencia,
+    BV.dpi, 
+    e.ubicacion, 
+    BV.nombre, 
+    es.estado,
+    a.precio,
+	a.numero_artic,
+	a.detalle
+FROM boleta_vehiculo BV
+INNER JOIN placa p ON p.id_placa = BV.tipo_placa
+INNER JOIN vehiculos v ON v.id_vehiculo = BV.id_vehiculo
+INNER JOIN extendida e ON e.id_exten = BV.extendida
+INNER JOIN boleta_final bf ON bf.id_boleta = BV.id_boleta
+INNER JOIN estados es ON es.id_estado = bf.estado
+INNER JOIN licencia l ON l.id_licen = BV.tipo_licencia
+INNER JOIN multa m ON m.id_boleta = BV.id_boleta
+INNER JOIN multa_detalle dm ON dm.id_multa = m.id_multa
+INNER JOIN articulos a ON a.id_artic = dm.id_articulo
         WHERE p.id_placa = ? AND BV.placa_cod = ? AND es.id_estado = 1;
     `;
 
@@ -155,13 +198,11 @@ function generarPDFconDatos(res, rows, placaCod, placaNombre) {
 
         rows.forEach((row, index) => {
             doc
-                .fontSize(10)
-                .text(`Multa #${index + 1}`, { bold: true })
-                .text(`• No. Boleta: ${row.no_boleta}`)
-                .text(`• Placa Código: ${row.placa_cod}`)
-                .text(`• Tipo Vehículo: ${row.tipo_vehiculo}`)
-                .text(`• Estado: ${row.estado}`)
-                .moveDown();
+            .fontSize(10)
+            .text(`Multa No.${index + 1}`, { bold: true })
+            .moveDown() // Salto de línea
+            .text(`No. Boleta: ${row.no_boleta} | Placa Código: ${row.placa_cod} | Tipo Vehículo: ${row.tipo_vehiculo} | Artículo: ${row.numero_artic} | Detalle: ${row.detalle} | Estado: ${row.estado} | Precio: ${row.precio}`, { align: 'left' })
+            .moveDown();
         });
 
         // 🔹 **NO mostrar "SOLVENCIA DE TRÁNSITO" ni su línea ni "Valor Q. 25.00" cuando hay multas**
