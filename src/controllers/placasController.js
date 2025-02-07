@@ -1,76 +1,71 @@
-const db = require("../db/db");
+const db = require("../db/db"); // Importa el archivo db.js
+
+// Insertar una nueva placa
+const insertPlaca = (req, res) => {
+  const { placa, placa_inicial } = req.body; // Ajustamos a los parámetros del SP
+
+  const query = "EXEC sp_InsertarPlaca @placa = ?, @placa_inicial = ?";
+  const params = [placa, placa_inicial];
+
+  db.query(query, params, (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    res.status(201).json({ newPlacaId: rows[0]?.id_placa });
+  });
+};
+
+// Obtener todas las placas o una placa por ID
+const getPlacas = (req, res) => {
+  const { id } = req.params; // Parámetro opcional (para un solo registro)
+
+  const query = "EXEC sp_ObtenerPlacas @id_placa = ?";
+  const params = id ? [id] : [null];
+
+  db.query(query, params, (err, rows) => {
+    if (err) {
+      return res.status(500).json({ error: err.message });
+    }
+    if (id && rows.length === 0) {
+      return res.status(404).json({ error: "Placa no encontrada" });
+    }
+    res.json(id ? rows[0] : rows); // Devuelve una o todas las placas
+  });
+};
+
+
+
+const updatePlaca = (req, res) => {
+  const { id } = req.params;
+  const { placa, placa_inicial } = req.body;
+
+  const query =
+    "EXEC sp_ActualizarPlaca @id_placa = ?, @placa = ?, @placa_inicial = ?";
+  const params = [id, placa, placa_inicial];
+
+  db.query(query, params, (err, rows) => {
+    if (err) {
+      // Finalizar inmediatamente en caso de error
+      res.status(500).json({ error: err.message });
+      return;
+    }
+
+    // Validar si se encontró una fila actualizada
+    if (!rows || rows[0]?.filas_actualizadas === 0) {
+      // Finalizar inmediatamente si no se actualizó nada
+      res.status(404).json({ error: "Placa no encontrada" });
+      return;
+    }
+
+    // Enviar respuesta de éxito
+    res.json({ message: "Placa actualizada correctamente" });
+  });
+};
+
+  
 
 module.exports = {
-    // Crear una nueva placa
-    createPlaca: (req, res) => {
-        const { placa } = req.body;
-
-        const query = "EXEC sp_InsertPlaca @placa = ?";
-        db.query(query, [placa], (err, rows) => {
-            if (err) {
-                return res.status(500).json({ error: "Error al insertar placa", details: err.message });
-            }
-            res.status(201).json({ message: "Placa creada", newPlacaId: rows[0].NewPlacaId });
-        });
-    },
-
-    // Obtener todas las placas
-    getPlacas: (req, res) => {
-        const query = "EXEC sp_GetPlacas";
-        db.query(query, [], (err, rows) => {
-            if (err) {
-                return res.status(500).json({ error: "Error al obtener placas", details: err.message });
-            }
-            res.status(200).json(rows);
-        });
-    },
-
-    // Obtener una placa por ID
-    getPlacaById: (req, res) => {
-        const { id_placa } = req.params;
-
-        const query = "EXEC sp_GetPlacaById @id_placa = ?";
-        db.query(query, [id_placa], (err, rows) => {
-            if (err) {
-                return res.status(500).json({ error: "Error al obtener placa", details: err.message });
-            }
-            if (rows.length === 0) {
-                return res.status(404).json({ message: "Placa no encontrada" });
-            }
-            res.status(200).json(rows[0]);
-        });
-    },
-
-    // Actualizar una placa
-    updatePlaca: (req, res) => {
-        const { id_placa } = req.params;
-        const { placa } = req.body;
-
-        const query = "EXEC sp_UpdatePlaca @id_placa = ?, @placa = ?";
-        db.query(query, [id_placa, placa], (err) => {
-            if (err) {
-                if (err.message.includes("No se encontró")) {
-                    return res.status(404).json({ error: "Placa no encontrada" });
-                }
-                return res.status(500).json({ error: "Error al actualizar placa", details: err.message });
-            }
-            res.status(200).json({ message: "Placa actualizada" });
-        });
-    },
-
-    // Eliminar una placa
-    deletePlaca: (req, res) => {
-        const { id_placa } = req.params;
-
-        const query = "EXEC sp_DeletePlaca @id_placa = ?";
-        db.query(query, [id_placa], (err) => {
-            if (err) {
-                if (err.message.includes("No se encontró")) {
-                    return res.status(404).json({ error: "Placa no encontrada" });
-                }
-                return res.status(500).json({ error: "Error al eliminar placa", details: err.message });
-            }
-            res.status(200).json({ message: "Placa eliminada" });
-        });
-    },
+  insertPlaca,
+  getPlacas,
+  updatePlaca,
 };

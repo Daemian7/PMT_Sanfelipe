@@ -24,9 +24,15 @@
           <ul>
             <li><a href="/index">Inicio</a></li>
             <li><a href="/boleta">Ingreso de Boleta</a></li>
+<<<<<<< HEAD
             <li><a href="/registros">Ver Boletas</a></li>
             <li><a href="#">Estadísticas</a></li>
             <li><a href="#">Configuración</a></li>
+=======
+            <li><a href="/registros">Ver Boletas</a></li>            
+            <li><a href="/solvencia">Solvencias</a></li>
+            <li><a href="/api/traslado/generarPDF" target="_blank">Traslados</a></li>
+>>>>>>> dev
           </ul>
         </nav>
       </aside>
@@ -38,7 +44,11 @@
           <!-- Boleta Info -->
           <div class="form-section">
             <label for="boleta">No. Boleta</label>
+<<<<<<< HEAD
             <input type="text" id="boleta" placeholder="00" disabled>
+=======
+            <input type="text" id="no_boleta" placeholder="0000">
+>>>>>>> dev
   
             <label for="tipo-placa">Tipo de Placa</label>
             <select id="tipo-placa">
@@ -46,7 +56,11 @@
             </select>
   
             <label for="placa">Placa</label>
+<<<<<<< HEAD
             <input type="text" id="placa" placeholder="Número de placa">
+=======
+            <input type="text" id="placa" style="text-transform: uppercase;" placeholder="Número de placa">
+>>>>>>> dev
   
             <label for="tipo-vehiculo">Tipo de Vehículo</label>
             <select id="tipo-vehiculo">
@@ -119,8 +133,16 @@
             <select id="articulo" style="width: 700px;">
               <option>Seleccionar artículo</option>
             </select>
+<<<<<<< HEAD
             <button type="submit" class="btn">Agregar</button>
              <!-- aqui van a ir todos los articulos que se agreguen al carrito xd -->
+=======
+            <button type="button" class="btn" id="addarticulo">Agregar</button>
+            <!-- aqui van a ir todos los articulos que se agreguen al carrito xd -->
+              <div class="articulosadd">
+
+              </div>
+>>>>>>> dev
               <br> <br>
              <div class="form-section">
             <label for="fechainfo">Si Cancela hasta</label>
@@ -160,18 +182,44 @@
                 <option>Seleccionar infraccion</option>
               </select>
 
+<<<<<<< HEAD
               <button type="submit" class="btn" style="width: 150px;">Agregar Imagen</button><input type="text" id="imagen" disabled placeholder="url imagen"> 
             </div>
           </fieldset>
             <fieldset>
                 <button type="submit" class="btn" style="background-color:#80d141 ; width: 480px; height: 50px;" >Guardar</button>
                 <button type="submit" class="btn" style="background-color:#5497d0 ; width: 480px; height: 50px;">Limpiar</button>
+=======
+              <button  class="btn" style="width: 150px;">Agregar Imagen</button><input type="text" id="imagen" disabled placeholder="url imagen"> 
+            </div>
+          </fieldset>
+            <fieldset>
+                <button  class="btn" style="background-color:#80d141 ; width: 480px; height: 50px;" id="submit-button" >Guardar</button>
+                <button  class="btn" style="background-color:#5497d0 ; width: 480px; height: 50px;" id="clean">Limpiar</button>
+>>>>>>> dev
             </fieldset>
           
         </form>
       </main>
     </div>
+<<<<<<< HEAD
   
     <script src="js/script.js"></script>
+=======
+  <!-- scripts de todos los select js consumiendo api -->
+<script src="js/placas.js"></script>
+<script src="js/vehiculos.js"></script>
+<script src="js/licencia.js"></script>
+<script src="js/extendida.js"></script>
+<!-- <script src="js/articulos.js"></script> -->
+<script src="js/agente.js"></script>
+<script src="js/firma.js"></script>
+<script src="js/infraccion.js"></script>
+<!-- <script src="js/pp.js"></script> -->
+<!-- <script src="js/registrarboleta.js"></script> -->
+<script src="js/script.js"></script>
+<script src="js/prueba.js"></script>
+<script src="js/clean.js"></script>
+>>>>>>> dev
   </body>
 </html>

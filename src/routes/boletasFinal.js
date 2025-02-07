@@ -1,17 +1,9 @@
 const express = require("express");
-const {
-    getAllBoletasFinales,
-    getBoletaFinalById,
-    createBoletaFinal,
-    updateBoletaFinal,
-} = require("../controllers/boletasFinalController");
-
 const router = express.Router();
+const { insertBoletaFinal, getBoletas, updateEstado } = require("../controllers/boletasFinalController");
 
-// Endpoints para boletas finales
-router.get("/", getAllBoletasFinales);
-router.get("/:id", getBoletaFinalById);
-router.post("/", createBoletaFinal);
-router.put("/:id", updateBoletaFinal);
+router.post("/", insertBoletaFinal);
+router.get("/", getBoletas);
+router.put("/:id", updateEstado);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-create database pmt_sanfe
+ create database pmt_sanfe
 use pmt_sanfe
 
 CREATE TABLE Usuarios (
@@ -23,11 +23,16 @@ nombre nvarchar(200)
 
 create table placa (
 id_placa int identity (1,1) primary key,
-placa nvarchar(250)
+placa nvarchar(250),
+placa_inicial varchar(3)
 );
 
 alter table placa 
 ALTER COLUMN placa nvarchar(250)not null;
+
+ALTER TABLE placa
+ADD placa_inicial varchar(3);
+
 
 
 create table licencia(
@@ -51,8 +56,13 @@ tipo_infrac nvarchar(150)
 create table articulos(
 id_artic int identity (1,1) primary key,
 numero_artic nvarchar(200),
-detalle nvarchar(1200)
+detalle nvarchar(1200),
+precio float
 );
+
+ALTER TABLE articulos
+ADD precio float;
+
 
 
 create table firma (
@@ -79,11 +89,17 @@ CREATE TABLE boleta_vehiculo  (
 	dpi nvarchar(13),
 	extendida int not null,
     nombre NVARCHAR(255) NOT NULL,
+	no_boleta int,
 FOREIGN KEY (tipo_placa) REFERENCES placa(id_placa) ON DELETE CASCADE,
 FOREIGN KEY (id_vehiculo) REFERENCES vehiculos(id_vehiculo) ON DELETE CASCADE,
 FOREIGN KEY (tipo_licencia) REFERENCES licencia(id_licen) ON DELETE CASCADE,
 FOREIGN KEY (extendida) REFERENCES extendida(id_exten) ON DELETE CASCADE
 );
+
+ALTER TABLE boleta_vehiculo
+ADD no_boleta int;
+
+use pmt_sanfe
 
 create table multa (
 id_multa int identity (1,1) primary key,
@@ -96,10 +112,12 @@ create table multa_detalle(
 id_detalle int identity (1,1) primary key,
 id_multa int not null,
 id_articulo int not null,
-sub_total float
 foreign key (id_multa) references multa(id_multa) on delete cascade,
 foreign key (id_articulo) references articulos(id_artic) on delete cascade
 );
+
+ALTER TABLE multa_detalle
+DROP COLUMN sub_total;
 
 --ya lo cambie lol
 --ALTER TABLE multa_detalle
@@ -117,12 +135,23 @@ hora time,
 id_usuario int not null,
 observaciones nvarchar(500),
 id_firma int not null,
-id_infrac int not null
+id_infrac int not null,
+id_boleta int,
 foreign key (id_usuario) references Usuarios(Id_user) on delete cascade,
 foreign key (id_firma) references firma(id_firma) on delete cascade,
-foreign key (id_infrac) references infraccion(id_ifrac) on delete cascade
+foreign key (id_infrac) references infraccion(id_ifrac) on delete cascade,
+FOREIGN KEY (id_boleta) REFERENCES boleta_vehiculo(id_boleta) on delete cascade
 );
 
+ALTER TABLE info_boleta
+DROP COLUMN info_boleta;
+
+ALTER TABLE info_boleta
+ADD CONSTRAINT fk_boleta FOREIGN KEY (id_boleta) REFERENCES boleta_vehiculo(id_boleta) on delete cascade;
+
+
+ALTER TABLE info_boleta
+DROP CONSTRAINT fk_boleta;
 
 
 create TABLE boleta_final (
@@ -131,6 +160,7 @@ create TABLE boleta_final (
     id_info_boleta INT NOT NULL,
     id_multa INT NOT NULL,
     estado INT NOT NULL,
+	vencimiento date,
     CONSTRAINT FK_boleta_final_boleta_vehiculo FOREIGN KEY (id_boleta) 
         REFERENCES boleta_vehiculo(id_boleta) 
         ON DELETE NO ACTION,
@@ -144,7 +174,7 @@ constraint FK_estado_boleta foreign key(estado) references estados(id_estado) on
 );
 
 ALTER TABLE boleta_final
-ADD imagen VARBINARY(MAX);
+ADD vencimiento date;
 
 create table session_init (
 id_sess int identity (1,1) primary key,

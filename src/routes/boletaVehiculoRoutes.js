@@ -2,10 +2,13 @@ const express = require("express");
 const router = express.Router();
 const boletaVehiculoController = require("../controllers/boletaVehiculoController");
 
-// Rutas CRUD para "BoletaVehiculo"
-router.post("/", boletaVehiculoController.insertBoletaVehiculo); // Crear boleta
-router.get("/", boletaVehiculoController.getAllBoletas); // Obtener todas las boletas
-router.get("/:id_boleta", boletaVehiculoController.getBoletaById); // Obtener boleta por ID
-router.put("/:id_boleta", boletaVehiculoController.updateBoletaVehiculo); // Actualizar boleta
+// Crear una nueva boleta de vehículo
+router.post("/", boletaVehiculoController.insertBoleta);
+
+// Obtener todas las boletas o una específica por ID
+router.get("/:id?", boletaVehiculoController.getBoletas);
+
+// Actualizar una boleta específica por ID
+router.put("/:id", boletaVehiculoController.updateBoleta);
 
 module.exports = router;

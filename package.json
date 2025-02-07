@@ -4,7 +4,7 @@
   "description": "Proyecto de gestion y control de multas para la pmt de sanfelipe Retalhuleu",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node app.js"
   },
   "author": "",
   "license": "ISC",
@@ -17,6 +17,7 @@
     "express": "^4.21.2",
     "msnodesqlv8": "^4.4.0",
     "mssql": "^11.0.1",
+    "pdfkit": "^0.16.0",
     "sequelize": "^6.37.5"
   }
 }

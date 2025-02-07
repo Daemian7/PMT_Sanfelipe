@@ -18,6 +18,15 @@ const multaRoutes = require("./src/routes/multaRoutes");
 const multaDetalleRoutes = require("./src/routes/multaDetalleRoutes");
 const boletasRoutes = require("./src/routes/boletas");
 const boletasFinalRoutes = require("./src/routes/boletasFinal");
+const multasRoutes = require('./src/routes/multasRoutes');
+const buscarRoutes = require('./src/routes/buscarRoutes');
+const trasladoRoutes = require("./src/routes/trasladoRoutes");
+const conductorRoutes = require("./src/routes/conductorRoutes");
+const authMiddleware = require("./src/middleware/authMiddleware");
+
+
+
+
 
 const app = express();
 const port = 3000;
@@ -27,6 +36,10 @@ app.use(bodyParser.json());
 
  // Configurar la carpeta de archivos estáticos
  app.use(express.static(path.join(__dirname, "public")));
+<<<<<<< HEAD
+=======
+//  app.use("/api", authMiddleware);
+>>>>>>> dev
 
  // Rutas específicas para las páginas HTML
  app.get("/index", (req, res) => {
@@ -41,6 +54,19 @@ app.use(bodyParser.json());
    res.sendFile(path.join(__dirname, "public", "registros.html"));
 });
 
+<<<<<<< HEAD
+=======
+app.get("/solvencia", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "solvencia.html"));
+});
+
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "login.html"));
+});
+
+
+
+>>>>>>> dev
 
 // Rutas
 app.use("/api/usuarios", usuariosRoutes);
@@ -57,11 +83,16 @@ app.use("/api/boleta-vehiculo", boletaVehiculoRoutes);
 app.use("/api/multa", multaRoutes);
 app.use("/api/multa-detalle", multaDetalleRoutes);
 app.use("/api/boletas", boletasRoutes);
-app.use("/api/boletas-finales", boletasFinalRoutes);
+app.use("/api/final", boletasFinalRoutes);
+app.use("/api/detalles",multasRoutes);
+app.use("/api/buscar", buscarRoutes);
+app.use("/api/traslado", trasladoRoutes);
+app.use("/api/conductor", conductorRoutes);
+
 
 // Ruta principal (endpoint raíz "/")
 app.get("/", (req, res) => {
-    res.send("Servidor corriendo correctamente 🚀");
+  res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
 // Iniciar el servidor
