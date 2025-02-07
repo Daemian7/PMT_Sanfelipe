@@ -22,6 +22,8 @@ const multasRoutes = require('./src/routes/multasRoutes');
 const buscarRoutes = require('./src/routes/buscarRoutes');
 const trasladoRoutes = require("./src/routes/trasladoRoutes");
 const conductorRoutes = require("./src/routes/conductorRoutes");
+const authMiddleware = require("./src/middleware/authMiddleware");
+
 
 
 
@@ -34,6 +36,7 @@ app.use(bodyParser.json());
 
  // Configurar la carpeta de archivos estáticos
  app.use(express.static(path.join(__dirname, "public")));
+//  app.use("/api", authMiddleware);
 
  // Rutas específicas para las páginas HTML
  app.get("/index", (req, res) => {
@@ -55,6 +58,7 @@ app.get("/solvencia", (req, res) => {
 app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "login.html"));
 });
+
 
 
 
@@ -82,7 +86,7 @@ app.use("/api/conductor", conductorRoutes);
 
 // Ruta principal (endpoint raíz "/")
 app.get("/", (req, res) => {
-    res.send("Servidor corriendo correctamente 🚀");
+  res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
 // Iniciar el servidor

@@ -68,8 +68,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     <td>${boleta.tipo_vehiculo}</td>
                     <td>${boleta.nombre}</td>
                     <td>${boleta.dpi}</td>
-                    <td>${boleta.dpi}</td>
                     <td>${boleta.total_precio}</td>
+                    <td>${boleta.estado}</td>
                 </tr>`;
         });
 

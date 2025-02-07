@@ -1003,7 +1003,7 @@ INNER JOIN
 
 
 	INSERT INTO session_init (usuario, passw)
-VALUES ('admin_user', 'userjemplo');
+VALUES ('pmt_admin', '4Dm1n_PMT');
 
 
 use pmt_sanfe

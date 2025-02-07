@@ -30,28 +30,32 @@ const getBoletas = (req, res) => {
     });
 };
 
-const updateBoletaEstado = async (req, res) => {
-    const { id_boleta } = req.params;
-    const { estado } = req.body;
+const updateEstado = (req, res) => {
+    const { id } = req.params; // ID de la boleta
+    const { estado } = req.body; // Nuevo estado
 
-    console.log("ID Boleta:", id_boleta);  // Verifica el ID de boleta
-    console.log("Estado recibido:", estado);  // Verifica el estado recibido
-
-    if (!id_boleta || estado === undefined) {
-        return res.status(400).json({ error: "ID de boleta y estado son requeridos" });
+    if (!id || !estado) {
+        return res.status(400).json({ error: "ID y estado son obligatorios" });
     }
 
-    const query = "UPDATE boleta_final SET estado = ? WHERE id_boleta = ?";
+    const query = `UPDATE boleta_final SET estado = ? WHERE id_boletafin = ?`;
 
-    db.query(query, [estado, id_boleta], (err, result) => {
+    sql.open(connectionString, (err, conn) => {
         if (err) {
-            console.error("Error al actualizar estado:", err);
-            return res.status(500).json({ error: "Error interno del servidor" });
+            console.error("❌ Error al conectar con SQL Server:", err);
+            return res.status(500).json({ error: "Error de conexión con la base de datos" });
         }
 
-        res.json({ message: "Estado actualizado correctamente", affectedRows: result.rowsAffected });
+        conn.query(query, [estado, id], (err, result) => {
+            if (err) {
+                console.error("❌ Error al actualizar estado:", err);
+                return res.status(500).json({ error: "Error al actualizar el estado" });
+            }
+
+            res.json({ mensaje: "✅ Estado actualizado correctamente", filas_afectadas: result });
+        });
     });
 };
 
 
-module.exports = { insertBoletaFinal, getBoletas, updateBoletaEstado };
+module.exports = { insertBoletaFinal, getBoletas, updateEstado };
